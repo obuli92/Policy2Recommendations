@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy2Recommendations - Architecture Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #218089;
+            --color-primary-hover: #1d7480;
+            --color-primary-light: #e8f5f7;
+            --color-success: #218089;
+            --color-warning: #a84b2f;
+            --color-error: #c0152f;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-text: #134252;
+            --color-text-secondary: #666666;
+            --color-gray-light: #f5f5f5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--color-surface);
+            padding: 30px 0;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: 16px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--color-primary);
+            text-decoration: none;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            margin-top: 24px;
+        }
+
+        .flow-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .flow-item {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .flow-item.input {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .flow-item.processing {
+            border-color: var(--color-warning);
+            background: #fef3e8;
+        }
+
+        .flow-item.output {
+            border-color: var(--color-success);
+            background: #e8f5e8;
+        }
+
+        .flow-label {
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 8px;
+        }
+
+        .flow-description {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .detailed-step {
+            background: var(--color-gray-light);
+            border-left: 4px solid var(--color-primary);
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: var(--color-primary);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 600;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 6px;
+        }
+
+        .step-description {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            margin-left: 40px;
+        }
+
+        .technical-detail {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .tech-label {
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .confidence-framework {
+            background: var(--color-surface);
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .confidence-framework h3 {
+            color: var(--color-primary);
+            margin-bottom: 12px;
+        }
+
+        .confidence-factor {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: var(--color-gray-light);
+            border-radius: 6px;
+        }
+
+        .factor-weight {
+            font-weight: 600;
+            color: var(--color-primary);
+            min-width: 40px;
+        }
+
+        .factor-description {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .highlight-box {
+            background: #fffbf0;
+            border-left: 4px solid var(--color-warning);
+            padding: 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .success-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--color-success);
+            padding: 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        ul {
+            margin-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .architecture-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .comparison-item {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .comparison-item h4 {
+            margin-bottom: 12px;
+            color: var(--color-text);
+        }
+
+        .comparison-item ul {
+            font-size: 13px;
+            margin-left: 20px;
+        }
+
+        .comparison-item li {
+            margin-bottom: 6px;
+        }
+
+        .comparison-item.bad {
+            background: #fff0f0;
+            border-color: var(--color-error);
+        }
+
+        .comparison-item.good {
+            background: #f0fff0;
+            border-color: var(--color-success);
+        }
+
+        @media (max-width: 768px) {
+            .flow-section {
+                grid-template-columns: 1fr;
+            }
+
+            .architecture-comparison {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="back-link">← Back to Portfolio</a>
+            <h1>Architecture Diagram</h1>
+            <p class="subtitle">System Design: End-to-End Pipeline, AI/ML Decisions, Confidence Calibration</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2 class="section-title">🏗️ System Architecture Overview</h2>
+            <p style="color: var(--color-text-secondary); margin-bottom: 20px;">
+                Policy2Recommendations combines natural language processing, multi-objective optimization, and confidence scoring to deliver intelligent recommendations. Here's how the system works end-to-end.
+            </p>
+
+            <h3 class="section-title" style="margin-top: 32px;">End-to-End Flow</h3>
+            
+            <div class="flow-section" style="grid-template-columns: repeat(6, 1fr); align-items: start;">
+                <div class="flow-item input">
+                    <div class="flow-label">📋 Inputs</div>
+                    <div class="flow-description">
+                        • Travel policy (natural language)<br>
+                        • Traveler search query<br>
+                        • Loyalty tier & preferences
+                    </div>
+                </div>
+                <div style="text-align: center; font-size: 20px; color: var(--color-primary);">→</div>
+                <div class="flow-item processing">
+                    <div class="flow-label">🤖 NLP Parsing</div>
+                    <div class="flow-description">
+                        • LLM extracts constraints<br>
+                        • Validates ambiguities<br>
+                        • Generates JSON rules
+                    </div>
+                </div>
+                <div style="text-align: center; font-size: 20px; color: var(--color-primary);">→</div>
+                <div class="flow-item processing">
+                    <div class="flow-label">💾 Data Enrichment</div>
+                    <div class="flow-description">
+                        • Real-time pricing<br>
+                        • Availability check<br>
+                        • Miles rates lookup
+                    </div>
+                </div>
+                <div style="text-align: center; font-size: 20px; color: var(--color-primary);">→</div>
+                <div class="flow-item processing">
+                    <div class="flow-label">⚖️ Multi-Objective Ranking</div>
+                    <div class="flow-description">
+                        • Compliance (40%)<br>
+                        • Cost (30%)<br>
+                        • Loyalty (15%)
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 32px;">10-Step Processing Pipeline</h3>
+
+            <div class="detailed-step">
+                <div>
+                    <span class="step-number">1</span>
+                    <span class="step-title">Policy Input & Parsing</span>
+                </div>
+                <div class="step-description">
+                    Travel manager submits policy in natural language. GPT-4 parses into structured JSON rules.
+                    <div class="technical-detail">
+                        <span class="tech-label">Input:</span> "All flights under 4 hours must be economy"<br>
+                        <span class="tech-label">Output:</span> { "rule": "flight_cabin", "constraint": "flight_duration < 4h → cabin = economy" }
+                    </div>
+                </div>
+            </div>
+
+            <div class="detailed-step">
+                <div>
+                    <span class="step-number">2</span>
+                    <span class="step-title">Constraint Validation</span>
+                </div>
+                <div class="step-description">
+                    System checks for ambiguities, conflicts, or unclear rules. Flags low-confidence constraints.
+                    <div class="highlight-box">
+                        ⚠️ Example ambiguity: "Prefer United when available" - does this override cost constraints?
+                    </div>
+                </div>
+            </div>
+
+            <div class="detailed-step">
+                <div>
+                    <span class="step-number">3</span>
+                    <span class="step-title">Traveler Search Query Processing</span>
+                </div>
+                <div class="step-description">
+                    Extract destination, dates, class of service, loyalty status, and preferences.
+                    <div class="technical-detail">
+                        <span class="tech-label">Query:</span> SF tomorrow, elite tier, prefers non-stop
+                    </div>
+                </div>
+            </div>
+
+            <div class="detailed-step">
+                <div>
+                    <span class="step-number">4</span>
+                    <span class="step-title">Real-Time Market Data Fetch</span>
+                </div>
+                <div class="step-description">
+                    Query flight/hotel APIs (Sabre, Amadeus, hotel chains) for real-time availability and pricing.
+                    <div class="success-box">
+                        ✓ Ensures recommendations are always current (last updated: &lt;5 seconds ago)
+                    </div>
+                </div>
+            </div>
+
+            <div class="detailed-step">
+                <div>
+                    <span class="step-number">5</span>
+                    <span class="step-title">Policy Constraint Application</span>
+                </div>
+                <div class="step-description">
+                    Filter market options through policy constraints. Remove out-of-policy options.
+                    <div class="technical-detail">
+                        <span class="tech-label">Filter:</span> Only show flights where cabin matches policy + hotel price ≤ limit
+                    </div>
+                </div>
+            </div>
+
+            <div class="detailed-step">
+                <div>
+                    <span class="step-number">6</span>
+                    <span class="step-title">Multi-Objective Ranking</span>
+                </div>
+                <div class="step-description">
+                    Score each option across 5 weighted objectives to balance competing goals.
+                </div>
+            </div>
+
+            <div class="detailed-step">
+                <div>
+                    <span class="step-number">7</span>
+                    <span class="step-title">Confidence Scoring</span>
+                </div>
+                <div class="step-description">
+                    Calculate confidence for top-ranked option based on data quality and historical accuracy.
+                </div>
+            </div>
+
+            <div class="detailed-step">
+                <div>
+                    <span class="step-number">8</span>
+                    <span class="step-title">Explanation Generation</span>
+                </div>
+                <div class="step-description">
+                    Create human-readable explanation for why top option was ranked #1 (e.g., "Meets policy + preferred airline + non-stop").
+                </div>
+            </div>
+
+            <div class="detailed-step">
+                <div>
+                    <span class="step-number">9</span>
+                    <span class="step-title">Return Top 3 Options</span>
+                </div>
+                <div class="step-description">
+                    Generate three recommendation tiers: Best, Premium (comfort-optimized), Budget (savings-optimized).
+                </div>
+            </div>
+
+            <div class="detailed-step">
+                <div>
+                    <span class="step-number">10</span>
+                    <span class="step-title">Feedback Loop & Learning</span>
+                </div>
+                <div class="step-description">
+                    Track booking decision → measure actual outcome → update confidence calibration model.
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 32px;">🎯 Multi-Objective Ranking Weights</h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="flow-item" style="background: var(--color-surface);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="font-size: 20px; font-weight: 700; color: var(--color-primary);">40%</span>
+                        <span style="font-weight: 600;">Policy Compliance</span>
+                    </div>
+                    <ul style="font-size: 13px; margin-left: 20px;">
+                        <li>Must be in-policy</li>
+                        <li>Preferred airline bonus</li>
+                        <li>Preferred hotel bonus</li>
+                    </ul>
+                </div>
+
+                <div class="flow-item" style="background: var(--color-surface);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="font-size: 20px; font-weight: 700; color: var(--color-primary);">30%</span>
+                        <span style="font-weight: 600;">Cost Savings</span>
+                    </div>
+                    <ul style="font-size: 13px; margin-left: 20px;">
+                        <li>Total trip cost vs. average</li>
+                        <li>Savings incentive for budget options</li>
+                        <li>Corporate spend optimization</li>
+                    </ul>
+                </div>
+
+                <div class="flow-item" style="background: var(--color-surface);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="font-size: 20px; font-weight: 700; color: var(--color-primary);">15%</span>
+                        <span style="font-weight: 600;">Loyalty Miles Earned</span>
+                    </div>
+                    <ul style="font-size: 13px; margin-left: 20px;">
+                        <li>Elite status multipliers</li>
+                        <li>Partner hotel/airline miles</li>
+                        <li>Credit card bonus points</li>
+                    </ul>
+                </div>
+
+                <div class="flow-item" style="background: var(--color-surface);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="font-size: 20px; font-weight: 700; color: var(--color-primary);">10%</span>
+                        <span style="font-weight: 600;">Traveler Comfort</span>
+                    </div>
+                    <ul style="font-size: 13px; margin-left: 20px;">
+                        <li>Non-stop flights preferred</li>
+                        <li>Hotel star rating</li>
+                        <li>Departure time preference</li>
+                    </ul>
+                </div>
+
+                <div class="flow-item" style="background: var(--color-surface);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="font-size: 20px; font-weight: 700; color: var(--color-primary);">5%</span>
+                        <span style="font-weight: 600;">Traveler Preference</span>
+                    </div>
+                    <ul style="font-size: 13px; margin-left: 20px;">
+                        <li>Preferred airlines/hotels</li>
+                        <li>Historical booking patterns</li>
+                        <li>Personal exclusions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 32px;">🎯 Confidence Calibration Framework</h3>
+
+            <div class="confidence-framework">
+                <p style="margin-bottom: 16px; font-size: 14px;">
+                    Confidence score (0-100%) reflects probability that top-ranked recommendation will be booked by traveler.
+                </p>
+
+                <div class="confidence-factor">
+                    <div class="factor-weight">Policy Clarity: 30%</div>
+                    <div class="factor-description">
+                        Is the extracted rule unambiguous? 95% clarity = high confidence; 65% clarity = lower confidence.
+                    </div>
+                </div>
+
+                <div class="confidence-factor">
+                    <div class="factor-weight">Data Quality: 30%</div>
+                    <div class="factor-description">
+                        How current is pricing/availability? Real-time (&lt;5 sec) = high; cached (&gt;1 hour) = lower.
+                    </div>
+                </div>
+
+                <div class="confidence-factor">
+                    <div class="factor-weight">Historical Accuracy: 25%</div>
+                    <div class="factor-description">
+                        For this policy + traveler segment, how often did top recommendation get booked? 80%+ = high.
+                    </div>
+                </div>
+
+                <div class="confidence-factor">
+                    <div class="factor-weight">Outlier Risk: 15%</div>
+                    <div class="factor-description">
+                        Is this recommendation unusual for this traveler? High deviation = lower confidence.
+                    </div>
+                </div>
+
+                <div class="success-box" style="margin-top: 16px;">
+                    ✓ <strong>Why transparency matters:</strong> Travelers trust the system more when they understand why confidence is 92% vs. 75%. Low confidence triggers alternative explanations.
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 32px;">🔄 Hybrid AI Approach: Why Both LLM + Rules Engine?</h3>
+
+            <div class="architecture-comparison">
+                <div class="comparison-item bad">
+                    <h4>❌ Pure LLM Approach (Black Box)</h4>
+                    <ul>
+                        <li>✓ Flexible: handles complex, ambiguous policies</li>
+                        <li>✗ Hallucinations: may ignore constraints</li>
+                        <li>✗ Untrustworthy: no explainability</li>
+                        <li>✗ Compliance risk: hard to verify correctness</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-item bad">
+                    <h4>❌ Pure Rules Engine (Rigid)</h4>
+                    <ul>
+                        <li>✓ Deterministic: guaranteed accuracy</li>
+                        <li>✓ Fast: no model latency</li>
+                        <li>✗ Inflexible: can't handle natural language</li>
+                        <li>✗ Unmaintainable: policy changes = code changes</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-item good" style="grid-column: 1 / -1;">
+                    <h4>✓ Hybrid Approach (Best of Both Worlds)</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <strong>LLM Component:</strong>
+                            <ul style="margin-top: 6px;">
+                                <li>Parses natural language policies</li>
+                                <li>Generates JSON constraints</li>
+                                <li>Flags ambiguities for review</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong>Rules Engine Component:</strong>
+                            <ul style="margin-top: 6px;">
+                                <li>Validates constraints deterministically</li>
+                                <li>Applies constraints consistently</li>
+                                <li>Produces deterministic rankings</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p style="margin-top: 12px; font-size: 13px; background: var(--color-gray-light); padding: 8px; border-radius: 4px;">
+                        <strong>Result:</strong> Best of both worlds—flexibility of LLM + reliability of rules. Easy to explain, hard to fool.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 32px;">🔄 Continuous Learning: Feedback Loop Design</h3>
+
+            <div class="flow-section" style="grid-template-columns: 1fr 1fr 1fr 1fr; align-items: start;">
+                <div class="flow-item">
+                    <div class="flow-label">📊 Observation</div>
+                    <div class="flow-description">
+                        Track every recommendation (confidence band) and whether it was booked.
+                    </div>
+                </div>
+                <div style="text-align: center; font-size: 20px; color: var(--color-primary);">→</div>
+                <div class="flow-item">
+                    <div class="flow-label">📈 Analysis</div>
+                    <div class="flow-description">
+                        Calculate: "For 90-95% confidence recommendations, how often booked?"
+                    </div>
+                </div>
+                <div style="text-align: center; font-size: 20px; color: var(--color-primary);">→</div>
+                <div class="flow-item">
+                    <div class="flow-label">🔧 Calibration</div>
+                    <div class="flow-description">
+                        If 92-95% confidence = 85% booking rate → recalibrate formula.
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px;">
+                <div style="text-align: center;">↑</div>
+            </div>
+
+            <div class="flow-item" style="text-align: center;">
+                <div class="flow-label">🚀 Continuous Improvement Loop</div>
+                <div class="flow-description">
+                    Over time, confidence scores become more accurate → higher CTR → increased adoption
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

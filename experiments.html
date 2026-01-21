@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy2Recommendations - Experiment Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #218089;
+            --color-primary-hover: #1d7480;
+            --color-primary-light: #e8f5f7;
+            --color-success: #218089;
+            --color-warning: #a84b2f;
+            --color-error: #c0152f;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-text: #134252;
+            --color-text-secondary: #666666;
+            --color-gray-light: #f5f5f5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--color-surface);
+            padding: 30px 0;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: 16px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--color-primary);
+            text-decoration: none;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            margin-top: 24px;
+        }
+
+        .experiment-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 700;
+            margin-right: 12px;
+        }
+
+        .experiment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .experiment-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .experiment-card {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .experiment-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 12px rgba(33, 128, 137, 0.1);
+        }
+
+        .exp-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 16px;
+            margin-bottom: 12px;
+            align-items: start;
+        }
+
+        .exp-label {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .exp-content {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .exp-content strong {
+            color: var(--color-text);
+        }
+
+        .hypothesis-box {
+            background: var(--color-primary-light);
+            border-left: 4px solid var(--color-primary);
+            padding: 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .hypothesis-box strong {
+            color: var(--color-primary);
+        }
+
+        .metrics-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .metric-item {
+            background: var(--color-gray-light);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .metric-item strong {
+            display: block;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .success-criteria {
+            background: #f0fdf4;
+            border: 1px solid var(--color-success);
+            border-radius: 6px;
+            padding: 12px;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+
+        .success-criteria strong {
+            color: var(--color-success);
+        }
+
+        .rollout-timeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            background: var(--color-gray-light);
+            border-left: 4px solid var(--color-primary);
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .timeline-label {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .timeline-value {
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        .overview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .overview-table th {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            border: 1px solid var(--color-border);
+        }
+
+        .overview-table td {
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            font-size: 13px;
+        }
+
+        .overview-table tr:nth-child(even) {
+            background: var(--color-gray-light);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-planned {
+            background: #e8f5f7;
+            color: var(--color-primary);
+        }
+
+        .status-active {
+            background: #fef3e8;
+            color: var(--color-warning);
+        }
+
+        .status-completed {
+            background: #f0fdf4;
+            color: var(--color-success);
+        }
+
+        .key-insights {
+            background: var(--color-primary-light);
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+
+        .key-insights h3 {
+            color: var(--color-primary);
+            margin-bottom: 12px;
+        }
+
+        .key-insights ul {
+            margin-left: 20px;
+        }
+
+        .key-insights li {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .power-analysis {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            padding: 12px;
+            margin: 12px 0;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .sample-size-calc {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .calc-item {
+            background: var(--color-gray-light);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .calc-item strong {
+            display: block;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        ul {
+            margin-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .exp-row {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-list {
+                grid-template-columns: 1fr;
+            }
+
+            .sample-size-calc {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .overview-table {
+                font-size: 12px;
+            }
+
+            .overview-table th,
+            .overview-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="back-link">← Back to Portfolio</a>
+            <h1>Experiment Design</h1>
+            <p class="subtitle">Hypothesis-driven validation: 4 experiments, statistical rigor, rollout strategy</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2 class="section-title">📊 Experimental Strategy Overview</h2>
+            <p style="color: var(--color-text-secondary); margin-bottom: 16px;">
+                Policy2Recommendations requires rigorous validation across four key dimensions: recommendation quality, compliance impact, traveler adoption, and business ROI. Below is the full experimental plan with statistical rigor and rollout strategy.
+            </p>
+
+            <table class="overview-table">
+                <thead>
+                    <tr>
+                        <th>Experiment</th>
+                        <th>Hypothesis</th>
+                        <th>Duration</th>
+                        <th>Sample Size</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Exp 1: Recommendation Quality</strong></td>
+                        <td>Top recommendation CTR ≥ 47%</td>
+                        <td>4 weeks</td>
+                        <td>10,000 bookings</td>
+                        <td><span class="status-badge status-planned">Planned</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Exp 2: Compliance Impact</strong></td>
+                        <td>Policy compliance increases from 68% → 82%</td>
+                        <td>4 weeks</td>
+                        <td>5,000 travelers</td>
+                        <td><span class="status-badge status-planned">Planned</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Exp 3: Confidence Calibration</strong></td>
+                        <td>95% confidence = 91-94% actual booking rate</td>
+                        <td>6 weeks</td>
+                        <td>30,000 recommendations</td>
+                        <td><span class="status-badge status-active">In Progress</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Exp 4: Business ROI</strong></td>
+                        <td>$240+ savings per trip, +2.3x miles</td>
+                        <td>8 weeks</td>
+                        <td>500 frequent travelers</td>
+                        <td><span class="status-badge status-active">In Progress</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- EXPERIMENT 1 -->
+        <div class="experiment-card">
+            <div class="experiment-header">
+                <span class="experiment-number">1</span>
+                <div>
+                    <div class="experiment-title">Recommendation Quality & CTR</div>
+                    <div style="font-size: 13px; color: var(--color-text-secondary);">Does the top recommendation drive bookings?</div>
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📌 Research Question</div>
+                <div class="exp-content">
+                    What % of travelers click & book the top-ranked recommendation? Does multi-objective ranking (compliance 40%, cost 30%, comfort 30%) drive higher CTR than baseline?
+                </div>
+            </div>
+
+            <div class="hypothesis-box">
+                <strong>Hypothesis:</strong> The top-ranked recommendation (multi-objective) will achieve ≥47% CTR, vs. baseline ~28% CTR (random ordering).
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">🧪 Design</div>
+                <div class="exp-content">
+                    <strong>A/B Test:</strong> 50/50 split (Control vs. Experimental)<br>
+                    <strong>Control:</strong> 3 recommendations shown in random order<br>
+                    <strong>Experimental:</strong> 3 recommendations ranked by multi-objective scoring<br>
+                    <strong>Metric:</strong> CTR (clicks on top recommendation / total impressions)
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📈 Key Metrics</div>
+                <div class="metrics-list">
+                    <div class="metric-item">
+                        <strong>Primary Metric</strong>
+                        <div>CTR on top recommendation</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Secondary Metrics</strong>
+                        <div>Booking rate, avg trip cost, policy compliance</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Duration</strong>
+                        <div>4 weeks (sufficient volume)</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Sample Size</strong>
+                        <div>10,000 bookings (Power = 0.95, α = 0.05)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sample-size-calc">
+                <div class="calc-item">
+                    <strong>Sample Size Calculation</strong>
+                    <div>Baseline CTR: 28% | Expected: 47%<br>
+                    Effect size: 19pp | Power: 0.95<br>
+                    Required: 4,850 per arm (9,700 total)</div>
+                </div>
+                <div class="calc-item">
+                    <strong>Timeline</strong>
+                    <div>Week 1-2: Setup & validation<br>
+                    Week 2-4: Run experiment<br>
+                    Week 4-5: Analysis & reporting</div>
+                </div>
+            </div>
+
+            <div class="success-criteria">
+                <strong>✓ Success Criteria:</strong> CTR of 45%+ in experimental arm (statistically significant at p &lt; 0.05)
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📊 Expected Outcomes</div>
+                <div class="exp-content">
+                    <strong>If Successful:</strong> Multi-objective ranking increases CTR by 19pp. Proves travelers prefer recommendations aligned with their multi-objective priorities over random order.<br>
+                    <strong>If Not:</strong> Iterate on ranking weights. Investigate traveler preferences (e.g., maybe cost matters more than comfort in this segment).
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPERIMENT 2 -->
+        <div class="experiment-card">
+            <div class="experiment-header">
+                <span class="experiment-number">2</span>
+                <div>
+                    <div class="experiment-title">Policy Compliance Impact</div>
+                    <div style="font-size: 13px; color: var(--color-text-secondary);">Does system-guided booking improve policy adherence?</div>
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📌 Research Question</div>
+                <div class="exp-content">
+                    Does providing AI-guided recommendations based on natural-language policy rules increase traveler compliance compared to manual policy review?
+                </div>
+            </div>
+
+            <div class="hypothesis-box">
+                <strong>Hypothesis:</strong> Policy compliance will increase from 68% (baseline) to 82% (82% of bookings follow company policy) when travelers use Policy2Recommendations system.
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">🧪 Design</div>
+                <div class="exp-content">
+                    <strong>Quasi-Experimental (Before/After):</strong> <br>
+                    <strong>Control Period (Weeks 1-2):</strong> Travelers use old system (search, manual policy review)<br>
+                    <strong>Experimental Period (Weeks 3-6):</strong> Same travelers use Policy2Recommendations<br>
+                    <strong>Metric:</strong> % of bookings compliant with policy (calculated via policy rules)
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📈 Key Metrics</div>
+                <div class="metrics-list">
+                    <div class="metric-item">
+                        <strong>Primary Metric</strong>
+                        <div>Policy compliance rate (%)</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Secondary Metrics</strong>
+                        <div>Violations by rule, appeals/exceptions filed</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Segment Analysis</strong>
+                        <div>By traveler tier (standard, elite, exec)</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Sample</strong>
+                        <div>5,000 travelers (500 trips each)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="success-criteria">
+                <strong>✓ Success Criteria:</strong> Compliance increases ≥10pp (68% → 78%+) with 95% statistical confidence. No significant increase in traveler complaints or exception requests.
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📊 Expected Outcomes</div>
+                <div class="exp-content">
+                    <strong>If Successful:</strong> Proves system drives compliance without traveler friction. Ready for full rollout.<br>
+                    <strong>If Not:</strong> Investigate which policy rules cause violations. Maybe some rules are too strict or unclear. Iterate on policy parsing or multi-objective weights.
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPERIMENT 3 -->
+        <div class="experiment-card">
+            <div class="experiment-header">
+                <span class="experiment-number">3</span>
+                <div>
+                    <div class="experiment-title">Confidence Calibration</div>
+                    <div style="font-size: 13px; color: var(--color-text-secondary);">Is our confidence scoring accurate?</div>
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📌 Research Question</div>
+                <div class="exp-content">
+                    Does confidence score (0-100%) accurately predict booking behavior? I.e., when confidence = 95%, do travelers actually book 95% of the time?
+                </div>
+            </div>
+
+            <div class="hypothesis-box">
+                <strong>Hypothesis:</strong> For every confidence band, actual booking rate matches predicted rate (±3pp). E.g., 90-95% confidence = 91-94% actual booking rate.
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">🧪 Design</div>
+                <div class="exp-content">
+                    <strong>Observational Study:</strong> Track 30,000 recommendations across all travelers. For each recommendation, log:<br>
+                    • Predicted confidence score<br>
+                    • Whether traveler booked top recommendation<br>
+                    • Booking details (price, cabin, hotel, etc.)<br>
+                    <strong>Analysis:</strong> Calibration curve (predicted vs. actual booking rate by confidence band)
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📈 Key Metrics</div>
+                <div class="metrics-list">
+                    <div class="metric-item">
+                        <strong>Calibration Error</strong>
+                        <div>Expected vs. actual booking rate</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Confidence Bands</strong>
+                        <div>90-95%, 85-90%, 80-85%, &lt;80%</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Data Points</strong>
+                        <div>30,000 recommendations over 6 weeks</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Analysis</strong>
+                        <div>Brier score, calibration slope</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="success-criteria">
+                <strong>✓ Success Criteria:</strong> Calibration error &lt;3pp across all confidence bands. Confidence score reliably predicts booking behavior.
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📊 Expected Outcomes</div>
+                <div class="exp-content">
+                    <strong>If Successful:</strong> Confidence scores are trustworthy. Can use them to flag uncertain recommendations for manual review or traveler explanation.<br>
+                    <strong>If Not:</strong> Recalibrate confidence model. Investigate which factors (policy clarity, data quality, etc.) drive miscalibration.
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPERIMENT 4 -->
+        <div class="experiment-card">
+            <div class="experiment-header">
+                <span class="experiment-number">4</span>
+                <div>
+                    <div class="experiment-title">Business ROI & Financial Impact</div>
+                    <div style="font-size: 13px; color: var(--color-text-secondary);">Does the system deliver projected financial benefits?</div>
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📌 Research Question</div>
+                <div class="exp-content">
+                    What are the actual savings, miles earned, and loyalty impact? Does Policy2Recommendations deliver $240+ savings per trip and 2.3x miles multiplier?
+                </div>
+            </div>
+
+            <div class="hypothesis-box">
+                <strong>Hypothesis:</strong> Frequent travelers (exec tier) will save $240/trip on average and earn 2.3x more miles when using Policy2Recommendations vs. their historical booking patterns.
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">🧪 Design</div>
+                <div class="exp-content">
+                    <strong>Cohort Analysis (Treated):</strong> 500 frequent travelers (exec tier)<br>
+                    <strong>Control Group:</strong> Similar 500 travelers (matched on historical spend, frequency, tier)<br>
+                    <strong>Treatment:</strong> Get Policy2Recommendations, Control: Standard booking system<br>
+                    <strong>Duration:</strong> 8 weeks of bookings<br>
+                    <strong>Metrics:</strong> Avg trip cost, miles earned, loyalty status progression
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📈 Key Metrics</div>
+                <div class="metrics-list">
+                    <div class="metric-item">
+                        <strong>Cost Savings</strong>
+                        <div>Avg trip cost (Control - Treated)</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Miles Earned</strong>
+                        <div>Miles per trip (Treated / Control ratio)</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Corporate Spend</strong>
+                        <div>Total monthly travel spend per employee</div>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Loyalty Impact</strong>
+                        <div>Status progression, upgrade frequency</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sample-size-calc">
+                <div class="calc-item">
+                    <strong>Sample Size</strong>
+                    <div>500 per arm (Control + Treated)<br>
+                    ~6 trips per traveler over 8 weeks<br>
+                    ~6,000 trips total for statistical power</div>
+                </div>
+                <div class="calc-item">
+                    <strong>Expected Effects</strong>
+                    <div>Cost savings: $240/trip<br>
+                    Miles: 2.3x baseline<br>
+                    Confidence: 95%</div>
+                </div>
+            </div>
+
+            <div class="success-criteria">
+                <strong>✓ Success Criteria:</strong> $200+ savings per trip (p &lt; 0.05) AND 2.0x+ miles multiplier (p &lt; 0.05). Positive ROI demonstrated.
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">📊 Expected Outcomes</div>
+                <div class="exp-content">
+                    <strong>If Successful:</strong> Business case validated. Present to executives with clear financial ROI. Prepare for company-wide rollout.<br>
+                    <strong>If Not:</strong> Investigate where savings are leaking. Maybe certain traveler segments don't respond to recommendations. Segment and optimize.
+                </div>
+            </div>
+        </div>
+
+        <!-- ROLLOUT STRATEGY -->
+        <div class="card">
+            <h2 class="section-title">🚀 Rollout Strategy (Post-Experiments)</h2>
+
+            <div class="key-insights">
+                <h3>Timeline & Gates</h3>
+                <ul>
+                    <li><strong>Week 0-4:</strong> Exp 1 & 2 (Recommendation Quality & Compliance) run in parallel</li>
+                    <li><strong>Week 4-6:</strong> Exp 3 (Confidence Calibration) ongoing, early analysis from Exp 1 & 2</li>
+                    <li><strong>Week 4-12:</strong> Exp 4 (ROI) runs full 8 weeks</li>
+                    <li><strong>Week 12:</strong> All experiments complete, gate decision</li>
+                    <li><strong>Week 13-16:</strong> If gate passes: Phased rollout (10% → 25% → 50% → 100%)</li>
+                </ul>
+            </div>
+
+            <div class="rollout-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-label">Phase 1: Pilot</div>
+                    <div class="timeline-value">10% of travelers (Week 13-14)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-label">Phase 2: Early Adopters</div>
+                    <div class="timeline-value">25% of travelers (Week 15-16)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-label">Phase 3: Broad Launch</div>
+                    <div class="timeline-value">50% of travelers (Week 17-18)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-label">Phase 4: Full Launch</div>
+                    <div class="timeline-value">100% of travelers (Week 19+)</div>
+                </div>
+            </div>
+
+            <div class="exp-row" style="margin-top: 24px;">
+                <div class="exp-label">🎯 Gate Criteria</div>
+                <div class="exp-content">
+                    <strong>To proceed to Phase 1 (10%):</strong><br>
+                    ✓ Exp 1: CTR ≥45% (vs. 28% baseline)<br>
+                    ✓ Exp 2: Compliance ≥78% (vs. 68% baseline)<br>
+                    ✓ Exp 3: Confidence calibration error &lt;3pp<br>
+                    ✓ Exp 4 (early results): Positive trend in cost savings/miles<br><br>
+
+                    <strong>To proceed to Phase 2 (25%):</strong><br>
+                    ✓ Phase 1 metrics hold or improve<br>
+                    ✓ No major bugs or traveler complaints<br>
+                    ✓ Exp 4 full results confirm $240+ savings<br><br>
+
+                    <strong>To proceed to Full Launch (100%):</strong><br>
+                    ✓ All phases show sustained metrics<br>
+                    ✓ Deployment infrastructure proven stable<br>
+                    ✓ Org alignment achieved (travel team, finance, exec leadership)
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-label">⚠️ Rollback Criteria</div>
+                <div class="exp-content">
+                    <strong>Pause if:</strong><br>
+                    • CTR drops below 35% (signal quality degradation)<br>
+                    • Compliance drops below 70% (system not working as intended)<br>
+                    • Traveler complaint rate increases >50% (UX issues)<br>
+                    • System downtime >99.5% (reliability concern)<br><br>
+
+                    <strong>Action:</strong> Pause rollout, investigate, fix, re-test in limited cohort.
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 32px;">📋 Measurement & Learning</h3>
+
+            <div class="exp-row">
+                <div class="exp-label">Ongoing Tracking</div>
+                <div class="exp-content">
+                    <strong>Weekly Dashboard:</strong> CTR, compliance, confidence calibration, miles, cost savings<br>
+                    <strong>Monthly Deep Dive:</strong> Segment analysis, cohort retention, system quality metrics<br>
+                    <strong>Feedback Loops:</strong> Traveler surveys, travel manager interviews, policy exception trends<br>
+                    <strong>Continuous Improvement:</strong> Use feedback to refine ranking weights, confidence model, policy parsing
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 24px; background: var(--color-primary-light); border: 2px solid var(--color-primary);">
+            <h3 style="color: var(--color-primary); margin-bottom: 12px;">💡 Why This Experimental Approach?</h3>
+            <ul style="color: var(--color-text-secondary);">
+                <li><strong>Exp 1 & 2 validate core value:</strong> Does the system actually work (CTR + compliance)? This is the minimum bar.</li>
+                <li><strong>Exp 3 builds trust:</strong> Confidence scores are only useful if they're accurate. This experiment proves calibration.</li>
+                <li><strong>Exp 4 proves ROI:</strong> Business case isn't just "better UX"—it's $240/trip in real savings. This drives budget decisions.</li>
+                <li><strong>Phased rollout reduces risk:</strong> Experiment with 10%, then 25%, then 50% before going to 100%. Easy to rollback if needed.</li>
+                <li><strong>Continuous measurement:</strong> Post-launch tracking ensures metrics stay healthy and we learn from real-world behavior.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy2Recommendations - Portfolio Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #218089;
+            --color-primary-hover: #1d7480;
+            --color-primary-light: #e8f5f7;
+            --color-success: #218089;
+            --color-warning: #a84b2f;
+            --color-error: #c0152f;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-text: #134252;
+            --color-text-secondary: #666666;
+            --color-gray-light: #f5f5f5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            opacity: 0.95;
+            margin-bottom: 32px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--color-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            text-align: center;
+            color: var(--color-text);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        .summary-column h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: var(--color-primary);
+        }
+
+        .summary-column ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .summary-column li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            color: var(--color-text-secondary);
+        }
+
+        .summary-column li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--color-primary);
+            font-weight: bold;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin: 40px 0;
+        }
+
+        .metric-card {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 12px rgba(33, 128, 137, 0.1);
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .artifacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+
+        .artifact-card {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .artifact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 4px;
+            background: var(--color-primary);
+            transition: left 0.3s ease;
+        }
+
+        .artifact-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 8px 24px rgba(33, 128, 137, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .artifact-card:hover::before {
+            left: 0;
+        }
+
+        .artifact-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .artifact-emoji {
+            font-size: 40px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .artifact-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        .artifact-description {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: 16px;
+            min-height: 40px;
+        }
+
+        .artifact-link {
+            display: inline-block;
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .artifact-link:hover {
+            color: var(--color-primary-hover);
+            transform: translateX(4px);
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 40px 0;
+        }
+
+        .skill-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .skill-icon {
+            font-size: 24px;
+            color: var(--color-primary);
+        }
+
+        .skill-name {
+            font-weight: 600;
+            color: var(--color-text);
+            font-size: 15px;
+        }
+
+        footer {
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .footer-column h4 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: var(--color-text);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column li {
+            margin-bottom: 8px;
+        }
+
+        .footer-column a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .footer-column a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--color-border);
+            padding-top: 24px;
+            text-align: center;
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 50px 0;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Policy2Recommendations</h1>
+            <p class="subtitle">AI-Powered Travel Management: Complete Product Case Study</p>
+            <div class="cta-buttons">
+                <a href="#artifacts" class="btn btn-primary">View All Artifacts</a>
+                <a href="case-study.html" class="btn btn-secondary">Read Case Study</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="section" id="overview">
+            <h2 class="section-title">Executive Summary</h2>
+
+            <div class="summary-grid">
+                <div class="summary-column">
+                    <h3>The Problem</h3>
+                    <ul>
+                        <li>Travel managers struggle to enforce complex policies</li>
+                        <li>Travelers face overwhelming choice and decision paralysis</li>
+                        <li>Low policy compliance (65-75%) and traveler frustration</li>
+                        <li>Existing systems: too rigid (rules) or too opaque (black-box ML)</li>
+                    </ul>
+                </div>
+                <div class="summary-column">
+                    <h3>The Solution</h3>
+                    <ul>
+                        <li>LLM-powered policy parsing from natural language</li>
+                        <li>Multi-objective recommendation ranking (compliance + cost + loyalty + comfort)</li>
+                        <li>Confidence scoring for transparency and trust</li>
+                        <li>Feedback loops for continuous improvement</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 style="text-align: center; font-size: 20px; margin: 40px 0 24px 0; color: var(--color-text);">Key Results (Projected)</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">82%</div>
+                    <div class="metric-label">Policy Compliance</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">47%</div>
+                    <div class="metric-label">Recommendation CTR</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$240</div>
+                    <div class="metric-label">Savings per Trip</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">2.3x</div>
+                    <div class="metric-label">Miles Multiplier</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">92%</div>
+                    <div class="metric-label">System Confidence</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="artifacts">
+            <h2 class="section-title">Interactive Artifacts</h2>
+            <p style="text-align: center; color: var(--color-text-secondary); margin-bottom: 40px; font-size: 16px;">
+                Click on any artifact to view live.
+            </p>
+
+            <div class="artifacts-grid">
+                <div class="artifact-card">
+                    <div class="artifact-number">1</div>
+                    <span class="artifact-emoji">💻</span>
+                    <div class="artifact-title">Interactive Prototype</div>
+                    <div class="artifact-description">Live web app: policy parsing, personalized recommendations, analytics dashboard</div>
+                    <a href="prototype.html" class="artifact-link">View Live →</a>
+                </div>
+
+                <div class="artifact-card">
+                    <div class="artifact-number">2</div>
+                    <span class="artifact-emoji">🏗️</span>
+                    <div class="artifact-title">Architecture Diagram</div>
+                    <div class="artifact-description">End-to-end system design: pipeline from policy to recommendations</div>
+                    <a href="architecture.html" class="artifact-link">View Live →</a>
+                </div>
+
+                <div class="artifact-card">
+                    <div class="artifact-number">3</div>
+                    <span class="artifact-emoji">👥</span>
+                    <div class="artifact-title">User Journey Map</div>
+                    <div class="artifact-description">Three personas across complete journeys: emotions, pain points, system value</div>
+                    <a href="journeys.html" class="artifact-link">View Live →</a>
+                </div>
+
+                <div class="artifact-card">
+                    <div class="artifact-number">4</div>
+                    <span class="artifact-emoji">📊</span>
+                    <div class="artifact-title">Experiment Design</div>
+                    <div class="artifact-description">Hypothesis-driven validation: 4 experiments, statistical rigor, rollout strategy</div>
+                    <a href="experiments.html" class="artifact-link">View Live →</a>
+                </div>
+
+                <div class="artifact-card">
+                    <div class="artifact-number">5</div>
+                    <span class="artifact-emoji">📄</span>
+                    <div class="artifact-title">Case Study Document</div>
+                    <div class="artifact-description">Comprehensive business case: market, strategy, financials, roadmap</div>
+                    <a href="case-study.html" class="artifact-link">View Document →</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Skills Demonstrated</h2>
+
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <span class="skill-icon">🎯</span>
+                    <span class="skill-name">Product Strategy</span>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-icon">🤖</span>
+                    <span class="skill-name">AI/ML Product Thinking</span>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-icon">👤</span>
+                    <span class="skill-name">User-Centric Design</span>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-icon">📊</span>
+                    <span class="skill-name">Hypothesis-Driven Experimentation</span>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-icon">🏗️</span>
+                    <span class="skill-name">System Architecture</span>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-icon">💬</span>
+                    <span class="skill-name">Technical Communication</span>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-icon">💰</span>
+                    <span class="skill-name">Financial Modeling</span>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-icon">📈</span>
+                    <span class="skill-name">Business Case Development</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="text-align: center;">
+            <h2 class="section-title">Ready to Explore?</h2>
+            <p style="font-size: 18px; color: var(--color-text-secondary); margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Click on any artifact above to see the interactive experience. Or read the complete case study document to explore the full business narrative.
+            </p>
+            <div class="cta-buttons">
+                <a href="#artifacts" class="btn btn-primary">View All Artifacts</a>
+                <a href="case-study.html" class="btn btn-secondary">Read Case Study</a>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h4>Artifacts</h4>
+                    <ul>
+                        <li><a href="prototype.html">Interactive Prototype</a></li>
+                        <li><a href="architecture.html">Architecture Diagram</a></li>
+                        <li><a href="journeys.html">User Journey Map</a></li>
+                        <li><a href="experiments.html">Experiment Design</a></li>
+                        <li><a href="case-study.html">Case Study</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#overview">Executive Summary</a></li>
+                        <li><a href="case-study.html">Business Case</a></li>
+                        <li><a href="journeys.html">User Journeys</a></li>
+                        <li><a href="experiments.html">Experiments</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>About</h4>
+                    <ul>
+                        <li>PM Case Study</li>
+                        <li>AI Product Thinking</li>
+                        <li>Hypothesis-Driven</li>
+                        <li>User-Centric</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>Policy2Recommendations Product Case Study | January 2026 | AI-Powered Travel Management</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+
