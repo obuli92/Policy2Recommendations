@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy2Recommendations - User Journey Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #218089;
+            --color-primary-hover: #1d7480;
+            --color-primary-light: #e8f5f7;
+            --color-success: #218089;
+            --color-warning: #a84b2f;
+            --color-error: #c0152f;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-text: #134252;
+            --color-text-secondary: #666666;
+            --color-gray-light: #f5f5f5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--color-surface);
+            padding: 30px 0;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: 16px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--color-primary);
+            text-decoration: none;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .persona-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .persona-btn {
+            padding: 12px 16px;
+            border: 2px solid var(--color-border);
+            background: var(--color-surface);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .persona-btn:hover {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .persona-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .journey-map {
+            display: none;
+        }
+
+        .journey-map.active {
+            display: block;
+        }
+
+        .persona-header {
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            gap: 20px;
+            margin-bottom: 32px;
+            align-items: start;
+        }
+
+        .persona-avatar {
+            font-size: 48px;
+            text-align: center;
+        }
+
+        .persona-info h2 {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .persona-info .role {
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .persona-info .bio {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .journey-stage {
+            margin-bottom: 32px;
+        }
+
+        .stage-header {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stage-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            border-radius: 8px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .stage-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+
+        .stage-duration {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .journey-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .journey-box {
+            background: var(--color-gray-light);
+            border-left: 4px solid var(--color-primary);
+            padding: 16px;
+            border-radius: 4px;
+        }
+
+        .journey-box.pain {
+            border-left-color: var(--color-error);
+            background: #fff0f0;
+        }
+
+        .journey-box.emotion {
+            border-left-color: var(--color-warning);
+            background: #fef3e8;
+        }
+
+        .journey-box.value {
+            border-left-color: var(--color-success);
+            background: #f0fdf4;
+        }
+
+        .journey-box h4 {
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .journey-box p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .emotion-meter {
+            display: flex;
+            gap: 4px;
+            margin-top: 12px;
+            align-items: center;
+        }
+
+        .emotion-bar {
+            display: flex;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .emotion-segment {
+            height: 6px;
+            border-radius: 2px;
+            background: var(--color-border);
+        }
+
+        .emotion-segment.positive {
+            background: var(--color-success);
+        }
+
+        .emotion-segment.neutral {
+            background: var(--color-warning);
+        }
+
+        .emotion-segment.negative {
+            background: var(--color-error);
+        }
+
+        .emotion-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            min-width: 50px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            margin-top: 24px;
+        }
+
+        .personas-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .persona-card {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .persona-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 12px rgba(33, 128, 137, 0.1);
+        }
+
+        .persona-card-avatar {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .persona-card-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .persona-card-role {
+            font-size: 13px;
+            color: var(--color-primary);
+            margin-bottom: 12px;
+        }
+
+        .persona-card-insight {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .key-insights {
+            background: var(--color-primary-light);
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+
+        .key-insights h3 {
+            color: var(--color-primary);
+            margin-bottom: 12px;
+        }
+
+        .key-insights li {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .stage-header {
+                grid-template-columns: 1fr;
+            }
+
+            .stage-number {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+
+            .persona-header {
+                grid-template-columns: 1fr;
+            }
+
+            .persona-avatar {
+                font-size: 32px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="back-link">← Back to Portfolio</a>
+            <h1>User Journey Map</h1>
+            <p class="subtitle">Three personas, complete journeys: pain points, emotions, and system value</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2 class="section-title">👥 Select a Persona</h2>
+            <div class="persona-selector">
+                <button class="persona-btn active" onclick="selectPersona('elena')">Elena - Travel Manager</button>
+                <button class="persona-btn" onclick="selectPersona('james')">James - Executive</button>
+                <button class="persona-btn" onclick="selectPersona('maria')">Maria - Frequent Traveler</button>
+            </div>
+
+            <!-- ELENA JOURNEY -->
+            <div id="elena" class="journey-map active">
+                <div class="persona-header">
+                    <div class="persona-avatar">👩‍💼</div>
+                    <div class="persona-info">
+                        <h2>Elena García</h2>
+                        <div class="role">Corporate Travel Manager</div>
+                        <div class="bio">
+                            <strong>Background:</strong> 8 years managing travel budgets for 500-person enterprise. Frustrated with policy compliance (68%) and time spent on manual approvals.<br>
+                            <strong>Goal:</strong> Automate policy enforcement while improving traveler satisfaction and reducing costs by 15%.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="key-insights">
+                    <h3>🎯 Key Insight</h3>
+                    <ul>
+                        <li><strong>Core Problem:</strong> Policies are complex and hard to enforce. Travelers either don't follow them or complain about rigidity.</li>
+                        <li><strong>Success Metric:</strong> Compliance rises to 80%+ without traveler complaints increasing.</li>
+                        <li><strong>Why Policy2Recommendations Resonates:</strong> AI parses policies automatically, so she doesn't manually code rules. Confidence scoring proves the system works.</li>
+                    </ul>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-header">
+                        <div class="stage-number">1️⃣</div>
+                        <div>
+                            <div class="stage-title">Policy Creation & Setup</div>
+                            <div class="stage-duration">Week 1</div>
+                        </div>
+                    </div>
+                    <div class="journey-content">
+                        <div class="journey-box">
+                            <h4>💭 What Elena Does</h4>
+                            <p>Writes travel policy in plain English covering flights, hotels, car rentals, and meal limits.</p>
+                        </div>
+                        <div class="journey-box pain">
+                            <h4>😤 Pain Point</h4>
+                            <p>Usually spends days translating policy into rules engine syntax. If she makes a mistake, travelers get bad recommendations.</p>
+                        </div>
+                        <div class="journey-box emotion">
+                            <h4>😰 Emotion</h4>
+                            <p>Anxious about whether the system will actually work</p>
+                            <div class="emotion-meter">
+                                <div class="emotion-bar">
+                                    <div class="emotion-segment neutral"></div>
+                                    <div class="emotion-segment neutral"></div>
+                                    <div class="emotion-segment negative"></div>
+                                </div>
+                                <div class="emotion-label">Skeptical</div>
+                            </div>
+                        </div>
+                        <div class="journey-box value">
+                            <h4>✨ System Value</h4>
+                            <p>Policy2Recommendations parses her natural language policy automatically. GPT-4 extracts constraints in seconds. She reviews the JSON, flags ambiguities, and publishes live.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-header">
+                        <div class="stage-number">2️⃣</div>
+                        <div>
+                            <div class="stage-title">Traveler Adoption & Feedback</div>
+                            <div class="stage-duration">Week 2-3</div>
+                        </div>
+                    </div>
+                    <div class="journey-content">
+                        <div class="journey-box">
+                            <h4>💭 What Elena Does</h4>
+                            <p>Sends traveler communications about new policy and system. Monitors feedback and booking patterns.</p>
+                        </div>
+                        <div class="journey-box pain">
+                            <h4>😤 Pain Point</h4>
+                            <p>Travelers complain the system is "too rigid" or "doesn't understand my needs." She manually reviews exceptions.</p>
+                        </div>
+                        <div class="journey-box emotion">
+                            <h4>😟 Emotion</h4>
+                            <p>Worried about traveler satisfaction vs. compliance goals</p>
+                            <div class="emotion-meter">
+                                <div class="emotion-bar">
+                                    <div class="emotion-segment negative"></div>
+                                    <div class="emotion-segment neutral"></div>
+                                    <div class="emotion-segment neutral"></div>
+                                </div>
+                                <div class="emotion-label">Concerned</div>
+                            </div>
+                        </div>
+                        <div class="journey-box value">
+                            <h4>✨ System Value</h4>
+                            <p>Multi-objective ranking (compliance 40%, cost 30%, comfort 30%) balances competing goals. Confidence scores show "why" recommendations ranked that way, building trust. Elena sees: 82% compliance + 4.2/5 traveler satisfaction.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-header">
+                        <div class="stage-number">3️⃣</div>
+                        <div>
+                            <div class="stage-title">Continuous Monitoring & Optimization</div>
+                            <div class="stage-duration">Ongoing</div>
+                        </div>
+                    </div>
+                    <div class="journey-content">
+                        <div class="journey-box">
+                            <h4>💭 What Elena Does</h4>
+                            <p>Reviews weekly analytics: compliance rate, CTR, spend trends, and policy violations.</p>
+                        </div>
+                        <div class="journey-box pain">
+                            <h4>😤 Pain Point</h4>
+                            <p>Previously: couldn't see which policies worked or which travelers frequently booked out-of-policy options.</p>
+                        </div>
+                        <div class="journey-box emotion">
+                            <h4>😊 Emotion</h4>
+                            <p>Confident the system is working and data-driven</p>
+                            <div class="emotion-meter">
+                                <div class="emotion-bar">
+                                    <div class="emotion-segment positive"></div>
+                                    <div class="emotion-segment positive"></div>
+                                    <div class="emotion-segment positive"></div>
+                                </div>
+                                <div class="emotion-label">Empowered</div>
+                            </div>
+                        </div>
+                        <div class="journey-box value">
+                            <h4>✨ System Value</h4>
+                            <p>Real-time dashboard shows which policies drive compliance and which need adjustment. Elena can A/B test policy changes (e.g., increase hotel budget in SF) and measure impact in days, not months.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JAMES JOURNEY -->
+            <div id="james" class="journey-map">
+                <div class="persona-header">
+                    <div class="persona-avatar">👔</div>
+                    <div class="persona-info">
+                        <h2>James Chen</h2>
+                        <div class="role">VP of Sales (Frequent Traveler)</div>
+                        <div class="bio">
+                            <strong>Background:</strong> Travels 80+ days/year for client meetings. Executive Platinum with United. Values time savings and comfort over cost.<br>
+                            <strong>Goal:</strong> Book fast, maximize miles/status, trust the recommendation is solid.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="key-insights">
+                    <h3>🎯 Key Insight</h3>
+                    <ul>
+                        <li><strong>Core Problem:</strong> Current booking UIs show too many options and don't prioritize what matters to him (preferred airline, non-stop, miles).</li>
+                        <li><strong>Success Metric:</strong> Books in under 2 minutes, achieves 3,000+ miles per trip, never books out-of-policy.</li>
+                        <li><strong>Why Policy2Recommendations Resonates:</strong> Top recommendation is almost always what he'd pick anyway, ranked based on his tier + preferences. Saves time, earns miles, follows policy.</li>
+                    </ul>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-header">
+                        <div class="stage-number">1️⃣</div>
+                        <div>
+                            <div class="stage-title">Trip Search & Discovery</div>
+                            <div class="stage-duration">5 minutes</div>
+                        </div>
+                    </div>
+                    <div class="journey-content">
+                        <div class="journey-box">
+                            <h4>💭 What James Does</h4>
+                            <p>Checks calendar, enters destination and dates into booking system.</p>
+                        </div>
+                        <div class="journey-box pain">
+                            <h4>😤 Pain Point</h4>
+                            <p>Current system shows 20+ flight options. He scrolls forever comparing airlines, times, connections, costs. Harder to find non-stop United flights.</p>
+                        </div>
+                        <div class="journey-box emotion">
+                            <h4>😫 Emotion</h4>
+                            <p>Impatient and overwhelmed</p>
+                            <div class="emotion-meter">
+                                <div class="emotion-bar">
+                                    <div class="emotion-segment negative"></div>
+                                    <div class="emotion-segment negative"></div>
+                                    <div class="emotion-segment neutral"></div>
+                                </div>
+                                <div class="emotion-label">Frustrated</div>
+                            </div>
+                        </div>
+                        <div class="journey-box value">
+                            <h4>✨ System Value</h4>
+                            <p>Policy2Recommendations shows 3 options ranked by his priorities: "Best" (Recommended) = UA non-stop, executive lounge, 1,200 miles. Top recommendation is already what he wants.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-header">
+                        <div class="stage-number">2️⃣</div>
+                        <div>
+                            <div class="stage-title">Decision & Booking</div>
+                            <div class="stage-duration">2 minutes</div>
+                        </div>
+                    </div>
+                    <div class="journey-content">
+                        <div class="journey-box">
+                            <h4>💭 What James Does</h4>
+                            <p>Reviews top recommendation, checks it meets his needs (preferred airline, non-stop, miles), clicks "Book".</p>
+                        </div>
+                        <div class="journey-box pain">
+                            <h4>😤 Pain Point</h4>
+                            <p>Concerns: Is this actually the best option? Did I miss something cheaper? Will this break policy?</p>
+                        </div>
+                        <div class="journey-box emotion">
+                            <h4>😐 Emotion</h4>
+                            <p>Cautiously optimistic</p>
+                            <div class="emotion-meter">
+                                <div class="emotion-bar">
+                                    <div class="emotion-segment neutral"></div>
+                                    <div class="emotion-segment positive"></div>
+                                    <div class="emotion-segment neutral"></div>
+                                </div>
+                                <div class="emotion-label">Trusting</div>
+                            </div>
+                        </div>
+                        <div class="journey-box value">
+                            <h4>✨ System Value</h4>
+                            <p>92% Confidence score + explanation shows: "In-policy ✓ + Preferred airline ✓ + Non-stop ✓ + 1,200 miles". James sees the system ranked this well because it matches his priorities. He books instantly.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-header">
+                        <div class="stage-number">3️⃣</div>
+                        <div>
+                            <div class="stage-title">Trip Completion & Loyalty Tracking</div>
+                            <div class="stage-duration">Post-trip</div>
+                        </div>
+                    </div>
+                    <div class="journey-content">
+                        <div class="journey-box">
+                            <h4>💭 What James Does</h4>
+                            <p>Completes trip, logs miles earned, receives confirmation of policy compliance and loyalty points credited.</p>
+                        </div>
+                        <div class="journey-box pain">
+                            <h4>😤 Pain Point</h4>
+                            <p>Usually unsure if he booked optimally for miles. Doesn't get clear feedback on whether choice was right.</p>
+                        </div>
+                        <div class="journey-box emotion">
+                            <h4>😄 Emotion</h4>
+                            <p>Satisfied and appreciated</p>
+                            <div class="emotion-meter">
+                                <div class="emotion-bar">
+                                    <div class="emotion-segment positive"></div>
+                                    <div class="emotion-segment positive"></div>
+                                    <div class="emotion-segment positive"></div>
+                                </div>
+                                <div class="emotion-label">Delighted</div>
+                            </div>
+                        </div>
+                        <div class="journey-box value">
+                            <h4>✨ System Value</h4>
+                            <p>System shows: "You earned 1,200 miles + $80 savings vs. avg trip. This matches your preference tier." James feels smart + rewarded. He continues using the system and recommends it to colleagues.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MARIA JOURNEY -->
+            <div id="maria" class="journey-map">
+                <div class="persona-header">
+                    <div class="persona-avatar">💼</div>
+                    <div class="persona-info">
+                        <h2>Maria Rodriguez</h2>
+                        <div class="role">Mid-Level Manager (Occasional Traveler)</div>
+                        <div class="bio">
+                            <strong>Background:</strong> Travels 8-10 times/year for meetings. Standard loyalty tier. Not tech-savvy, values simplicity and clarity. Often unsure if bookings are "correct".<br>
+                            <strong>Goal:</strong> Book confidently, follow policy, feel supported.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="key-insights">
+                    <h3>🎯 Key Insight</h3>
+                    <ul>
+                        <li><strong>Core Problem:</strong> Doesn't understand policy rules or whether her bookings comply. Worries about getting reimbursed or criticized.</li>
+                        <li><strong>Success Metric:</strong> Books with confidence, policy compliance rate 95%+, zero reimbursement delays due to policy violations.</li>
+                        <li><strong>Why Policy2Recommendations Resonates:</strong> Simple UX, clear explanations, confidence score builds trust that she's making the right choice.</li>
+                    </ul>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-header">
+                        <div class="stage-number">1️⃣</div>
+                        <div>
+                            <div class="stage-title">Trip Planning & Anxiety</div>
+                            <div class="stage-duration">1-2 days before</div>
+                        </div>
+                    </div>
+                    <div class="journey-content">
+                        <div class="journey-box">
+                            <h4>💭 What Maria Does</h4>
+                            <p>Knows she needs to book travel for client meeting next week. Checks company policy document (confusing 10-page PDF).</p>
+                        </div>
+                        <div class="journey-box pain">
+                            <h4>😤 Pain Point</h4>
+                            <p>Policy is hard to understand. Lots of rules about hotels, flights, meal limits. She's unsure if her booking choice is correct. Worries she'll exceed budget or break a rule.</p>
+                        </div>
+                        <div class="journey-box emotion">
+                            <h4>😰 Emotion</h4>
+                            <p>Anxious and uncertain</p>
+                            <div class="emotion-meter">
+                                <div class="emotion-bar">
+                                    <div class="emotion-segment negative"></div>
+                                    <div class="emotion-segment negative"></div>
+                                    <div class="emotion-segment neutral"></div>
+                                </div>
+                                <div class="emotion-label">Worried</div>
+                            </div>
+                        </div>
+                        <div class="journey-box value">
+                            <h4>✨ System Value</h4>
+                            <p>Maria receives email about new Policy2Recommendations system. She's told to just "enter destination and dates" - the system will handle the rest and show her what's in-policy.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-header">
+                        <div class="stage-number">2️⃣</div>
+                        <div>
+                            <div class="stage-title">Booking & Decision</div>
+                            <div class="stage-duration">10 minutes</div>
+                        </div>
+                    </div>
+                    <div class="journey-content">
+                        <div class="journey-box">
+                            <h4>💭 What Maria Does</h4>
+                            <p>Opens Policy2Recommendations, enters destination (NYC), dates (3 days). System shows 3 recommendations.</p>
+                        </div>
+                        <div class="journey-box pain">
+                            <h4>😤 Pain Point</h4>
+                            <p>Previously: had to manually compare 20+ options, unsure which was in-policy. Worried about reimbursement delays if she got it wrong.</p>
+                        </div>
+                        <div class="journey-box emotion">
+                            <h4>😌 Emotion</h4>
+                            <p>Relieved and empowered</p>
+                            <div class="emotion-meter">
+                                <div class="emotion-bar">
+                                    <div class="emotion-segment positive"></div>
+                                    <div class="emotion-segment positive"></div>
+                                    <div class="emotion-segment neutral"></div>
+                                </div>
+                                <div class="emotion-label">Confident</div>
+                            </div>
+                        </div>
+                        <div class="journey-box value">
+                            <h4>✨ System Value</h4>
+                            <p>"Recommended" option highlighted with clear reasoning: "In-policy ✓ + Best value ✓ + Includes hotel within budget ✓". 87% confidence score makes Maria feel the system knows what it's doing. She clicks "Book" immediately.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-header">
+                        <div class="stage-number">3️⃣</div>
+                        <div>
+                            <div class="stage-title">Reimbursement & Feedback</div>
+                            <div class="stage-duration">Post-trip</div>
+                        </div>
+                    </div>
+                    <div class="journey-content">
+                        <div class="journey-box">
+                            <h4>💭 What Maria Does</h4>
+                            <p>Submits expense report for reimbursement. Receives confirmation: "Booking approved, 100% reimbursable."</p>
+                        </div>
+                        <div class="journey-box pain">
+                            <h4>😤 Pain Point</h4>
+                            <p>Previously: submitted reports and worried about audit/delays if booking was out-of-policy. Stressed during 2-week reimbursement cycle.</p>
+                        </div>
+                        <div class="journey-box emotion">
+                            <h4>😊 Emotion</h4>
+                            <p>Validated and trusted</p>
+                            <div class="emotion-meter">
+                                <div class="emotion-bar">
+                                    <div class="emotion-segment positive"></div>
+                                    <div class="emotion-segment positive"></div>
+                                    <div class="emotion-segment positive"></div>
+                                </div>
+                                <div class="emotion-label">Happy</div>
+                            </div>
+                        </div>
+                        <div class="journey-box value">
+                            <h4>✨ System Value</h4>
+                            <p>Maria sees instant reimbursement approval + email saying "Your booking was in-policy and optimized for company savings". She feels smart and supported. Next trip, she immediately uses the system again and tells teammates about it.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 40px;">
+            <h2 class="section-title">🎯 Cross-Persona Insights</h2>
+
+            <div class="personas-summary">
+                <div class="persona-card">
+                    <div class="persona-card-avatar">👩‍💼</div>
+                    <div class="persona-card-name">Elena (Travel Manager)</div>
+                    <div class="persona-card-role">Compliance & Cost Focus</div>
+                    <div class="persona-card-insight">
+                        <strong>Jobs to be Done:</strong> Automate policy + boost compliance + reduce cost + keep travelers happy without coding rules manually.
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-card-avatar">👔</div>
+                    <div class="persona-card-name">James (Executive)</div>
+                    <div class="persona-card-role">Time & Loyalty Focus</div>
+                    <div class="persona-card-insight">
+                        <strong>Jobs to be Done:</strong> Book fast, maximize miles/status, trust the #1 option is right for me, zero decision anxiety.
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-card-avatar">💼</div>
+                    <div class="persona-card-name">Maria (Mid-Level Manager)</div>
+                    <div class="persona-card-role">Simplicity & Confidence Focus</div>
+                    <div class="persona-card-insight">
+                        <strong>Jobs to be Done:</strong> Book confidently without policy confusion, follow rules, feel supported, get reimbursed quickly.
+                    </div>
+                </div>
+            </div>
+
+            <div class="key-insights" style="margin-top: 24px;">
+                <h3>💡 System Value Across Personas</h3>
+                <ul>
+                    <li><strong>Elena:</strong> NLP parsing saves 40 hours/year on rule coding. Multi-objective ranking + confidence scores prove ROI. Compliance increases from 68% → 82% without complaints.</li>
+                    <li><strong>James:</strong> Reduces booking time by 70% (10 min → 2 min). Miles earned increase 30% because system knows his tier priorities. Stays in-policy without friction.</li>
+                    <li><strong>Maria:</strong> Eliminates policy confusion through simple UX + clear explanations. 95% compliance rate, instant reimbursement, zero stress.</li>
+                    <li><strong>All Personas:</strong> System builds trust through explainability (confidence scores + reasons). Each persona sees value tailored to their needs (compliance, speed, simplicity).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    function selectPersona(persona) {
+        document.querySelectorAll('.journey-map').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.persona-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(persona).classList.add('active');
+        event.target.classList.add('active');
+    }
+</script>
+</html>

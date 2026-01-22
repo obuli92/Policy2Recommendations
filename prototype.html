@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy2Recommendations - Interactive Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #218089;
+            --color-primary-hover: #1d7480;
+            --color-primary-light: #e8f5f7;
+            --color-success: #218089;
+            --color-warning: #a84b2f;
+            --color-error: #c0152f;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-text: #134252;
+            --color-text-secondary: #666666;
+            --color-gray-light: #f5f5f5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--color-surface);
+            padding: 30px 0;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: 16px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--color-primary);
+            text-decoration: none;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--color-text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab-button:hover {
+            color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        textarea, input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(33, 128, 137, 0.1);
+        }
+
+        button {
+            background: var(--color-primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--color-primary-hover);
+        }
+
+        button.secondary {
+            background: var(--color-gray-light);
+            color: var(--color-text);
+        }
+
+        button.secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .constraint-item {
+            background: var(--color-gray-light);
+            border-left: 4px solid var(--color-primary);
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .constraint-item strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .recommendation {
+            background: var(--color-gray-light);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 12px rgba(33, 128, 137, 0.1);
+        }
+
+        .recommendation.selected {
+            background: var(--color-primary-light);
+            border-color: var(--color-primary);
+        }
+
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .recommendation-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .recommendation-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: var(--color-success);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .recommendation-badge.premium {
+            background: var(--color-warning);
+        }
+
+        .recommendation-badge.budget {
+            background: #666;
+        }
+
+        .confidence-score {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-primary);
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            width: 80px;
+        }
+
+        .recommendation-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .detail-item strong {
+            min-width: 100px;
+        }
+
+        .cost-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .cost-item {
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .cost-item-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .cost-item-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        .savings {
+            color: var(--color-success);
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .alert.info {
+            background: #e8f5f7;
+            border-left: 4px solid var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .alert.warning {
+            background: #fef3e8;
+            border-left: 4px solid var(--color-warning);
+            color: var(--color-warning);
+        }
+
+        .alert.success {
+            background: #e8f5e8;
+            border-left: 4px solid var(--color-success);
+            color: var(--color-success);
+        }
+
+        .alert-icon {
+            font-size: 18px;
+            min-width: 24px;
+        }
+
+        .confidence-explanation {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .confidence-explanation strong {
+            color: var(--color-text);
+        }
+
+        .confidence-check {
+            display: flex;
+            align-items: center;
+            margin: 6px 0;
+        }
+
+        .confidence-check.yes::before {
+            content: '✓';
+            color: var(--color-success);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .confidence-check.no::before {
+            content: '✗';
+            color: var(--color-error);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .confidence-check.uncertain::before {
+            content: '?';
+            color: var(--color-warning);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            margin-top: 24px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-top: 8px;
+        }
+
+        .success-message {
+            background: var(--color-success);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .recommendation-details {
+                grid-template-columns: 1fr;
+            }
+
+            .cost-comparison {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="back-link">← Back to Portfolio</a>
+            <h1>Policy2Recommendations</h1>
+            <p class="subtitle">Interactive Prototype: Policy Parsing, Personalized Recommendations & Analytics</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('manager')">Travel Manager Setup</button>
+            <button class="tab-button" onclick="switchTab('traveler')">Traveler Search</button>
+            <button class="tab-button" onclick="switchTab('analytics')">Analytics Dashboard</button>
+        </div>
+
+        <div id="manager" class="tab-content active">
+            <div class="card">
+                <h2 class="section-title">📋 Define Your Travel Policy</h2>
+                <p style="color: var(--color-text-secondary); margin-bottom: 16px;">
+                    Describe your travel policy in plain English. Our AI will parse it into structured constraints.
+                </p>
+
+                <div class="form-group">
+                    <label for="policyText">Your Policy (Natural Language)</label>
+                    <textarea id="policyText" placeholder="Example: All flights under 4 hours must be economy. Hotels in major cities should be under $350/night. We prefer United when available. No flights before 6am unless it's a client meeting."></textarea>
+                </div>
+
+                <button onclick="parsePolicy()">Parse Policy with AI</button>
+
+                <div id="parsingResult"></div>
+            </div>
+        </div>
+
+        <div id="traveler" class="tab-content">
+            <div class="card">
+                <h2 class="section-title">🔍 Search & Get Recommendations</h2>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                    <div class="form-group">
+                        <label for="destination">Destination</label>
+                        <select id="destination" onchange="updateRecommendations()">
+                            <option value="sf">San Francisco, CA</option>
+                            <option value="nyc">New York, NY</option>
+                            <option value="london">London, UK</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dates">Trip Duration</label>
+                        <select id="dates" onchange="updateRecommendations()">
+                            <option value="1d">1 Day (Tomorrow)</option>
+                            <option value="3d">3 Days</option>
+                            <option value="5d">5 Days</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="travelerTier">Your Loyalty Tier</label>
+                        <select id="travelerTier" onchange="updateRecommendations()">
+                            <option value="standard">Standard (0-25K miles/yr)</option>
+                            <option value="elite" selected>United Premier Platinum (100K+ miles/yr)</option>
+                            <option value="executive">Executive Platinum (250K+ miles/yr)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="recommendationsContainer"></div>
+
+                <div id="bookingConfirmation" class="success-message">
+                    <strong>✓ Booking Confirmed!</strong> Your trip has been approved and booked. A confirmation email has been sent to your inbox.
+                </div>
+            </div>
+        </div>
+
+        <div id="analytics" class="tab-content">
+            <div class="card">
+                <h2 class="section-title">📊 Company Travel Analytics</h2>
+                <p style="color: var(--color-text-secondary); margin-bottom: 24px;">
+                    Real-time insights into travel policy compliance and spending patterns.
+                </p>
+
+                <div class="dashboard-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">82%</div>
+                        <div class="metric-label">Policy Compliance Rate</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">$128K</div>
+                        <div class="metric-label">Total Spend This Month</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">47%</div>
+                        <div class="metric-label">Recommendation CTR</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">68%</div>
+                        <div class="metric-label">Share of Wallet</div>
+                    </div>
+                </div>
+
+                <div class="section-title">Policy Performance by Employee Tier</div>
+                <div class="dashboard-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">79%</div>
+                        <div class="metric-label">Standard Tier Compliance</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">84%</div>
+                        <div class="metric-label">Elite Tier Compliance</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">88%</div>
+                        <div class="metric-label">Executive Tier Compliance</div>
+                    </div>
+                </div>
+
+                <div class="section-title">Key Insights</div>
+                <div class="card" style="background: var(--color-primary-light);">
+                    <ul style="margin-left: 20px; color: var(--color-primary);">
+                        <li><strong>Policy Adoption Trend:</strong> Up 12 points from 65% to 77% in last 30 days</li>
+                        <li><strong>Top Recommendation:</strong> Hyatt Hotels (52% CTR) and United flights (61% CTR)</li>
+                        <li><strong>Miles Incentive Impact:</strong> Employees choosing in-policy options earn 2.3x more miles</li>
+                        <li><strong>Cost Savings:</strong> AI recommendations save $240/trip on average vs. manual bookings</li>
+                        <li><strong>Card Activation:</strong> 87% of employees using corporate co-brand card (up from 63%)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const recommendationsData = {
+            sf: {
+                options: [
+                    {
+                        title: "Recommended (In-Policy)",
+                        badge: "best",
+                        flight: "United 501 (8:05am, non-stop)",
+                        hotel: "Hyatt Regency Union Square ($415/night, 5x points)",
+                        cost: 680,
+                        costVsAvg: -120,
+                        miles: 1200,
+                        confidence: 92,
+                        reasons: { yes: ["Meets cost constraint", "Preferred airline", "Non-stop flight"], no: [], uncertain: [] }
+                    },
+                    {
+                        title: "Premium (In-Policy, Higher Comfort)",
+                        badge: "premium",
+                        flight: "United 502 (10:15am, non-stop)",
+                        hotel: "Park Hyatt San Francisco ($520/night, 7x points)",
+                        cost: 890,
+                        costVsAvg: 0,
+                        miles: 0,
+                        confidence: 88,
+                        reasons: { yes: ["Meets policy limits", "Luxury amenities"], no: [], uncertain: ["No cost savings incentive"] }
+                    },
+                    {
+                        title: "Budget (In-Policy, Economy)",
+                        badge: "budget",
+                        flight: "Southwest 1203 (6:40am, 1-stop)",
+                        hotel: "Best Western Plus ($220/night, 2x points)",
+                        cost: 420,
+                        costVsAvg: -380,
+                        miles: 3800,
+                        confidence: 85,
+                        reasons: { yes: ["Significant savings", "In-policy"], no: [], uncertain: ["Early departure time", "1 connection"] }
+                    }
+                ]
+            },
+            nyc: {
+                options: [
+                    {
+                        title: "Recommended (In-Policy)",
+                        badge: "best",
+                        flight: "American 322 (7:30am, non-stop)",
+                        hotel: "Hilton Midtown Manhattan ($400/night, 4x points)",
+                        cost: 720,
+                        costVsAvg: -140,
+                        miles: 1500,
+                        confidence: 94,
+                        reasons: { yes: ["Meets cost constraint", "Preferred partner", "Business class upgrade available"], no: [], uncertain: [] }
+                    },
+                    {
+                        title: "Premium (In-Policy, Higher Comfort)",
+                        badge: "premium",
+                        flight: "American 325 (9:00am, non-stop)",
+                        hotel: "Peninsula New York ($580/night, 8x points)",
+                        cost: 950,
+                        costVsAvg: 90,
+                        miles: 0,
+                        confidence: 87,
+                        reasons: { yes: ["Luxury 5-star hotel", "Late arrival preferred"], no: [], uncertain: ["Slightly above average cost"] }
+                    },
+                    {
+                        title: "Budget (In-Policy, Economy)",
+                        badge: "budget",
+                        flight: "United 405 (6:00am, non-stop)",
+                        hotel: "Holiday Inn Express Midtown ($275/night, 1x points)",
+                        cost: 480,
+                        costVsAvg: -380,
+                        miles: 4200,
+                        confidence: 82,
+                        reasons: { yes: ["Maximum savings", "Direct flight"], no: [], uncertain: ["Very early departure", "No elite amenities"] }
+                    }
+                ]
+            },
+            london: {
+                options: [
+                    {
+                        title: "Recommended (In-Policy)",
+                        badge: "best",
+                        flight: "United 91 (5:30pm, non-stop to Heathrow)",
+                        hotel: "The Crowne Plaza London ($450/night, 6x points)",
+                        cost: 2100,
+                        costVsAvg: -300,
+                        miles: 2500,
+                        confidence: 90,
+                        reasons: { yes: ["Transatlantic best option", "Preferred airline", "In-policy hotel"], no: [], uncertain: [] }
+                    },
+                    {
+                        title: "Premium (In-Policy, Higher Comfort)",
+                        badge: "premium",
+                        flight: "British Airways 112 (5:00pm, Gatwick, Business Class)",
+                        hotel: "Mandarin Oriental London ($650/night, 9x points)",
+                        cost: 3200,
+                        costVsAvg: 800,
+                        miles: 0,
+                        confidence: 85,
+                        reasons: { yes: ["Business class transatlantic", "5-star luxury"], no: [], uncertain: ["Higher cost for executive tier only"] }
+                    },
+                    {
+                        title: "Budget (In-Policy, Economy)",
+                        badge: "budget",
+                        flight: "United 92 (4:30pm, non-stop to Gatwick)",
+                        hotel: "Travelodge Covent Garden ($240/night, 1x points)",
+                        cost: 1420,
+                        costVsAvg: -980,
+                        miles: 5500,
+                        confidence: 78,
+                        reasons: { yes: ["Best value transatlantic", "Maximum miles"], no: [], uncertain: ["Gatwick airport (30+ min from central London)", "No hotel amenities"] }
+                    }
+                ]
+            }
+        };
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function parsePolicy() {
+            const policyText = document.getElementById('policyText').value.trim();
+            if (!policyText) {
+                alert('Please enter a policy description');
+                return;
+            }
+
+            const resultHtml = `
+                <div class="alert info" style="margin-top: 20px;">
+                    <div class="alert-icon">ℹ️</div>
+                    <div>
+                        <strong>Policy Parsed Successfully!</strong><br>
+                        Your policy has been analyzed and converted into structured constraints below.
+                    </div>
+                </div>
+                <div class="section-title" style="margin-top: 24px;">Extracted Constraints</div>
+                <div class="constraint-item">
+                    <strong>✓ Flight Duration Rule</strong>
+                    Flights under 4 hours → Economy cabin required
+                    <span class="confidence-badge">95% confident</span>
+                </div>
+                <div class="constraint-item">
+                    <strong>✓ Hotel Price Limit</strong>
+                    Maximum nightly rate: $350 (flexible by market)
+                    <span class="confidence-badge">92% confident</span>
+                </div>
+                <div class="constraint-item">
+                    <strong>✓ Airline Preference</strong>
+                    Preferred carriers: United, American Airlines
+                    <span class="confidence-badge">88% confident</span>
+                </div>
+                <div class="constraint-item">
+                    <strong>? Travel Timing Exception</strong>
+                    "No flights before 6am unless client meeting" - Conditional rule
+                    <span class="confidence-badge">78% confident</span>
+                    <div style="margin-top: 8px; font-size: 13px; color: var(--color-text-secondary);">
+                        ⚠️ Ambiguity: Should business-critical meetings override this rule?
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="publishPolicy()">✓ Publish Policy</button>
+                    <button class="secondary" onclick="editPolicy()">Edit Policy</button>
+                </div>
+            `;
+            document.getElementById('parsingResult').innerHTML = resultHtml;
+        }
+
+        function publishPolicy() {
+            alert('✓ Policy published! This policy is now live and will guide all traveler recommendations.');
+            document.getElementById('policyText').value = '';
+            document.getElementById('parsingResult').innerHTML = '';
+        }
+
+        function editPolicy() {
+            document.getElementById('parsingResult').innerHTML = '';
+        }
+
+        function updateRecommendations() {
+            const destination = document.getElementById('destination').value;
+            const tier = document.getElementById('travelerTier').value;
+            const data = recommendationsData[destination];
+            let html = `
+                <div class="alert info">
+                    <div class="alert-icon">✈️</div>
+                    <div>
+                        <strong>Your Search:</strong> ${destination.toUpperCase()} • Loyalty Tier: ${tier}
+                    </div>
+                </div>
+                <div class="section-title" style="margin-top: 20px;">Personalized Recommendations</div>
+            `;
+
+            data.options.forEach((option, index) => {
+                const isBest = option.badge === 'best';
+                const savingsClass = option.costVsAvg < 0 ? 'savings' : '';
+
+                html += `
+                    <div class="recommendation ${isBest ? 'selected' : ''}" onclick="selectRecommendation(this, ${index})">
+                        <div class="recommendation-header">
+                            <span class="recommendation-title">${option.title}</span>
+                            <span class="recommendation-badge ${option.badge}">${option.badge.toUpperCase()}</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 20px; align-items: start;">
+                            <div class="confidence-score">${option.confidence}%</div>
+                            <div class="recommendation-details">
+                                <div class="detail-item"><strong>Flight:</strong> ${option.flight}</div>
+                                <div class="detail-item"><strong>Hotel:</strong> ${option.hotel}</div>
+                            </div>
+                            <div><div class="cost-item">
+                                <div class="cost-item-value">$${option.cost}</div>
+                                <div class="cost-item-label">Total Trip Cost</div>
+                            </div></div>
+                        </div>
+                        <div class="cost-comparison">
+                            <div class="cost-item">
+                                <div class="cost-item-value" style="${savingsClass ? 'color: var(--color-success)' : 'color: var(--color-text-secondary)'}">
+                                    ${option.costVsAvg >= 0 ? '+' : ''}$${option.costVsAvg}
+                                </div>
+                                <div class="cost-item-label">vs. Avg Cost</div>
+                            </div>
+                            <div class="cost-item">
+                                <div class="cost-item-value" style="color: var(--color-primary)">${option.miles.toLocaleString()}</div>
+                                <div class="cost-item-label">Your Miles</div>
+                            </div>
+                            <div class="cost-item">
+                                <div class="cost-item-value" style="color: var(--color-success)">✓</div>
+                                <div class="cost-item-label">In-Policy</div>
+                            </div>
+                        </div>
+                        <div class="confidence-explanation">
+                            <strong>Why ranked #${index + 1}:</strong>
+                            <div style="margin-top: 8px;">
+                                ${option.reasons.yes.map(r => `<div class="confidence-check yes">${r}</div>`).join('')}
+                                ${option.reasons.no.map(r => `<div class="confidence-check no">${r}</div>`).join('')}
+                                ${option.reasons.uncertain.map(r => `<div class="confidence-check uncertain">${r}</div>`).join('')}
+                            </div>
+                        </div>
+                        <button style="margin-top: 12px; width: 100%;" onclick="bookOption(event)">Book This Option</button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('recommendationsContainer').innerHTML = html;
+        }
+
+        function selectRecommendation(element, index) {
+            document.querySelectorAll('.recommendation').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function bookOption(event) {
+            event.stopPropagation();
+            const confirmEl = document.getElementById('bookingConfirmation');
+            confirmEl.classList.add('show');
+            setTimeout(() => {
+                confirmEl.classList.remove('show');
+            }, 4000);
+        }
+
+        updateRecommendations();
+    </script>
+</body>
+</html>

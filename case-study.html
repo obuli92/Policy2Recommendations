@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy2Recommendations - Complete Case Study</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #218089;
+            --color-primary-hover: #1d7480;
+            --color-primary-light: #e8f5f7;
+            --color-success: #218089;
+            --color-warning: #a84b2f;
+            --color-error: #c0152f;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-text: #134252;
+            --color-text-secondary: #666666;
+            --color-gray-light: #f5f5f5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            padding: 30px 0;
+            margin-bottom: 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .document-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .print-btn {
+            background: var(--color-primary);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .print-btn:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .toc {
+            background: var(--color-primary-light);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .toc-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 16px;
+        }
+
+        .toc ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .toc li {
+            margin: 0;
+        }
+
+        .toc a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+            transform: translateX(4px);
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            margin-top: 60px;
+            color: var(--color-text);
+            border-bottom: 3px solid var(--color-primary);
+            padding-bottom: 16px;
+            scroll-margin-top: 100px;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 48px;
+            margin-bottom: 24px;
+            color: var(--color-text);
+            scroll-margin-top: 100px;
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: var(--color-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+        }
+
+        ul {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--color-border);
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:nth-child(even) {
+            background: var(--color-gray-light);
+        }
+
+        .data-table strong {
+            color: var(--color-text);
+        }
+
+        .highlight-box {
+            background: var(--color-primary-light);
+            border-left: 4px solid var(--color-primary);
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .highlight-box strong {
+            color: var(--color-primary);
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 24px 0;
+        }
+
+        .section-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .section-card h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 12px;
+        }
+
+        .section-card p {
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        .section-card ul {
+            margin-left: 20px;
+            margin-bottom: 0;
+        }
+
+        .section-card li {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .metric {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .comparison-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .comparison-card.good {
+            border-left: 4px solid var(--color-success);
+            background: #f0fdf4;
+        }
+
+        .comparison-card.bad {
+            border-left: 4px solid var(--color-error);
+            background: #fff0f0;
+        }
+
+        .comparison-card h4 {
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .comparison-card ul {
+            margin-left: 20px;
+            margin-bottom: 0;
+        }
+
+        .comparison-card li {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .roadmap-timeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .timeline-item {
+            background: var(--color-surface);
+            border-left: 4px solid var(--color-primary);
+            padding: 16px;
+            border-radius: 4px;
+        }
+
+        .timeline-label {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .timeline-value {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        footer {
+            border-top: 1px solid var(--color-border);
+            padding: 40px 0;
+            margin-top: 60px;
+            color: var(--color-text-secondary);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .container {
+                padding: 20px 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-top: 40px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .section-grid,
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toc ul {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table {
+                font-size: 12px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 12px 8px;
+            }
+        }
+
+        @media print {
+            header {
+                position: static;
+                border-bottom: 2px solid var(--color-border);
+                margin-bottom: 20px;
+            }
+
+            .print-btn {
+                display: none;
+            }
+
+            .toc {
+                page-break-inside: avoid;
+            }
+
+            h1 {
+                page-break-before: always;
+                margin-top: 20px;
+            }
+
+            h1:first-of-type {
+                page-break-before: avoid;
+            }
+
+            .section-card,
+            .data-table {
+                page-break-inside: avoid;
+            }
+
+            a {
+                color: var(--color-primary);
+                text-decoration: underline;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="index.html" class="back-link">← Back to Portfolio</a>
+            <div class="document-title">Policy2Recommendations Case Study</div>
+            <button class="print-btn" onclick="window.print()">🖨️ Print as PDF</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- TABLE OF CONTENTS -->
+        <div class="toc">
+            <div class="toc-title">📑 Table of Contents</div>
+            <ul>
+                <li><a href="#executive-summary">Executive Summary</a></li>
+                <li><a href="#market-opportunity">Market Opportunity</a></li>
+                <li><a href="#product-strategy">Product Strategy</a></li>
+                <li><a href="#product-architecture">Product Architecture</a></li>
+                <li><a href="#go-to-market">Go-to-Market Strategy</a></li>
+                <li><a href="#financial-model">Financial Model</a></li>
+                <li><a href="#competitive-advantages">Competitive Advantages</a></li>
+                <li><a href="#risk-analysis">Risk Analysis</a></li>
+                <li><a href="#roadmap">Roadmap</a></li>
+                <li><a href="#success-criteria">Success Criteria</a></li>
+            </ul>
+        </div>
+
+        <!-- EXECUTIVE SUMMARY -->
+        <h1 id="executive-summary">Executive Summary</h1>
+
+        <h2>The Challenge</h2>
+        <p>Enterprise travel management faces a critical paradox: policies are increasingly complex, yet compliance remains low (65-75%). Travel managers struggle to enforce rules without frustrating travelers. Existing solutions are either too rigid (rules engines that ignore context) or too opaque (black-box ML that nobody trusts).</p>
+
+        <h2>The Opportunity</h2>
+        <p>By combining natural language processing (LLMs) with multi-objective optimization and transparent confidence scoring, we can create a system that:</p>
+        <ul>
+            <li><strong>Automates policy parsing</strong> (no manual rule coding)</li>
+            <li><strong>Personalizes recommendations</strong> (compliance + cost + loyalty + comfort)</li>
+            <li><strong>Builds trust</strong> (explainable confidence scores)</li>
+            <li><strong>Drives adoption</strong> (better UX than existing systems)</li>
+        </ul>
+
+        <h2>The Solution: Policy2Recommendations</h2>
+        <p>An AI-powered travel recommendation engine that:</p>
+        <ol>
+            <li><strong>Parses policies from natural language</strong> using GPT-4 (no coding required)</li>
+            <li><strong>Ranks recommendations</strong> across 5 weighted objectives</li>
+            <li><strong>Scores confidence</strong> based on policy clarity, data quality, and historical accuracy</li>
+            <li><strong>Provides explanations</strong> for every recommendation</li>
+            <li><strong>Learns continuously</strong> from traveler feedback</li>
+        </ol>
+
+        <h2>Key Results (Projected)</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Baseline</th>
+                    <th>Projected</th>
+                    <th>Uplift</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Policy Compliance</strong></td>
+                    <td>68%</td>
+                    <td>82%</td>
+                    <td>+14pp</td>
+                </tr>
+                <tr>
+                    <td><strong>Recommendation CTR</strong></td>
+                    <td>28%</td>
+                    <td>47%</td>
+                    <td>+19pp</td>
+                </tr>
+                <tr>
+                    <td><strong>Cost Savings per Trip</strong></td>
+                    <td>—</td>
+                    <td>$240</td>
+                    <td>+$240</td>
+                </tr>
+                <tr>
+                    <td><strong>Loyalty Miles</strong></td>
+                    <td>1.0x</td>
+                    <td>2.3x</td>
+                    <td>+130%</td>
+                </tr>
+                <tr>
+                    <td><strong>System Confidence</strong></td>
+                    <td>—</td>
+                    <td>92% avg</td>
+                    <td>—</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- MARKET OPPORTUNITY -->
+        <h1 id="market-opportunity">Market Opportunity</h1>
+
+        <h2>TAM (Total Addressable Market)</h2>
+        <p><strong>Enterprise Travel Management Software: $12.8B globally</strong></p>
+        <ul>
+            <li><strong>Primary TAM:</strong> Fortune 500 companies with 500+ employees (5,000 companies)</li>
+            <li><strong>Each invests:</strong> $2-4M/year in travel infrastructure + policy management</li>
+            <li><strong>Secondary TAM:</strong> Mid-market (10,000-100K employees): $1-2M/year spend</li>
+        </ul>
+
+        <h2>Competitive Landscape</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Strength</th>
+                    <th>Weakness</th>
+                    <th>Our Advantage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Concur (SAP)</strong></td>
+                    <td>Large market share</td>
+                    <td>Rigid, outdated UX</td>
+                    <td>AI-powered flexibility</td>
+                </tr>
+                <tr>
+                    <td><strong>Navan</strong></td>
+                    <td>Modern UX</td>
+                    <td>Manual policy setup</td>
+                    <td>Natural language parsing</td>
+                </tr>
+                <tr>
+                    <td><strong>Expedia for Business</strong></td>
+                    <td>Travel booking focus</td>
+                    <td>Not compliance-focused</td>
+                    <td>Policy + recommendations</td>
+                </tr>
+                <tr>
+                    <td><strong>Sapient (legacy)</strong></td>
+                    <td>Established</td>
+                    <td>Black-box recommendations</td>
+                    <td>Transparent, explainable</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Why Now?</h2>
+        <ul>
+            <li><strong>LLMs matured</strong> (GPT-4, Claude) make NLP viable</li>
+            <li><strong>Travel compliance is a $2B pain point</strong> (lost productivity + audit risk)</li>
+            <li><strong>Loyalty programs evolving</strong> (airlines want higher attachment; companies want cost control)</li>
+            <li><strong>Remote/hybrid work</strong> creates travel unpredictability (need smarter policies)</li>
+        </ul>
+
+        <!-- PRODUCT STRATEGY -->
+        <h1 id="product-strategy">Product Strategy</h1>
+
+        <h2>Vision</h2>
+        <p><strong>Make travel policy compliance effortless and profitable.</strong></p>
+
+        <h2>North Star Metric</h2>
+        <p><strong>Policy compliance rate across enterprise travelers</strong> (currently 68%, target 82%+)</p>
+
+        <h2>Secondary Metrics</h2>
+        <ul>
+            <li>Recommendation CTR (% of travelers who book the #1 recommendation)</li>
+            <li>Cost savings per trip</li>
+            <li>Miles earned per traveler</li>
+            <li>Traveler satisfaction (NPS)</li>
+            <li>System confidence score accuracy</li>
+        </ul>
+
+        <h2>Target Customer Profile</h2>
+        <div class="section-grid">
+            <div class="section-card">
+                <h4>Decision Maker: VP of Travel Management / CFO</h4>
+                <p><strong>Pain:</strong> Low compliance, high exceptions, manual policy enforcement</p>
+                <p><strong>Budget:</strong> $500K-$2M/year for travel tech</p>
+            </div>
+            <div class="section-card">
+                <h4>End User: Corporate Travelers</h4>
+                <p><strong>Pain:</strong> Policy confusion, decision paralysis, suboptimal loyalty rewards</p>
+                <p><strong>Desire:</strong> Simple booking, in-policy confidence, miles maximization</p>
+            </div>
+        </div>
+
+        <h2>Positioning</h2>
+        <p><em>"The AI copilot for corporate travel. Parses complex policies, gives travelers personalized recommendations, drives compliance without friction."</em></p>
+
+        <!-- PRODUCT ARCHITECTURE -->
+        <h1 id="product-architecture">Product Architecture</h1>
+
+        <h2>System Components</h2>
+
+        <h3>1. Policy Parsing Engine (LLM)</h3>
+        <ul>
+            <li><strong>Input:</strong> Natural language policy document</li>
+            <li><strong>Process:</strong> GPT-4 extracts structured rules</li>
+            <li><strong>Output:</strong> JSON constraint definitions</li>
+            <li><strong>Value:</strong> No manual rule coding required</li>
+        </ul>
+
+        <h3>2. Data Integration Layer</h3>
+        <ul>
+            <li>Real-time pricing (Sabre, Amadeus APIs)</li>
+            <li>Availability checking</li>
+            <li>Loyalty program rates lookup</li>
+            <li>Corporate card integration</li>
+        </ul>
+
+        <h3>3. Multi-Objective Ranker</h3>
+        <ul>
+            <li><strong>Weights:</strong> Compliance (40%) + Cost (30%) + Loyalty (15%) + Comfort (10%) + Preferences (5%)</li>
+            <li><strong>Outputs:</strong> Top 3 ranked recommendations (Best, Premium, Budget)</li>
+        </ul>
+
+        <h3>4. Confidence Calibration Model</h3>
+        <ul>
+            <li><strong>Inputs:</strong> Policy clarity, data freshness, historical accuracy, traveler segment, booking novelty</li>
+            <li><strong>Output:</strong> Confidence score (0-100%)</li>
+            <li><strong>Learning:</strong> Continuous feedback loop from actual bookings</li>
+        </ul>
+
+        <h3>5. Explanation Engine</h3>
+        <ul>
+            <li>Generates human-readable text for each recommendation</li>
+            <li>Shows which rules/constraints influenced ranking</li>
+            <li>Transparent about trade-offs</li>
+        </ul>
+
+        <h2>Tech Stack</h2>
+        <div class="section-grid">
+            <div class="section-card">
+                <h4>Frontend</h4>
+                <p>React, TypeScript, modern UI components</p>
+            </div>
+            <div class="section-card">
+                <h4>Backend</h4>
+                <p>Python (FastAPI), Node.js</p>
+            </div>
+            <div class="section-card">
+                <h4>ML/AI</h4>
+                <p>OpenAI GPT-4, scikit-learn</p>
+            </div>
+            <div class="section-card">
+                <h4>Data</h4>
+                <p>PostgreSQL, Redis</p>
+            </div>
+            <div class="section-card">
+                <h4>Integrations</h4>
+                <p>Sabre, Amadeus, Airlines, Hotels</p>
+            </div>
+            <div class="section-card">
+                <h4>Deployment</h4>
+                <p>AWS, Kubernetes</p>
+            </div>
+        </div>
+
+        <!-- GO-TO-MARKET -->
+        <h1 id="go-to-market">Go-to-Market Strategy</h1>
+
+        <h2>Phase 1: Pilot (Months 1-4)</h2>
+        <ul>
+            <li><strong>Target:</strong> 1-2 enterprise customers (500-2,000 travelers)</li>
+            <li><strong>Goal:</strong> Validate value prop, refine product</li>
+            <li><strong>KPIs:</strong> 75%+ compliance, 40%+ CTR, 4.0+ NPS</li>
+        </ul>
+
+        <h2>Phase 2: Early Customers (Months 5-8)</h2>
+        <ul>
+            <li><strong>Target:</strong> 5-10 mid-market customers</li>
+            <li><strong>Motion:</strong> Direct sales + partnerships (TMC, Expedia for Business)</li>
+            <li><strong>Go-to-market:</strong> Customer success + case studies</li>
+        </ul>
+
+        <h2>Phase 3: Scale (Months 9-18)</h2>
+        <ul>
+            <li><strong>Target:</strong> 50+ customers (10K+ SMB + Enterprise segments)</li>
+            <li><strong>Motion:</strong> Self-serve + enterprise sales</li>
+            <li><strong>Expansion:</strong> API integrations, developer ecosystem</li>
+        </ul>
+
+        <h2>Sales Strategy</h2>
+        <ul>
+            <li><strong>Land:</strong> Focus on compliance pain point (82% vs. 68%)</li>
+            <li><strong>Expand:</strong> Add loyalty rewards and cost analytics</li>
+            <li><strong>Retain:</strong> Continuous ROI demonstration + executive dashboards</li>
+        </ul>
+
+        <!-- FINANCIAL MODEL -->
+        <h1 id="financial-model">Financial Model</h1>
+
+        <h2>Revenue Model</h2>
+        <p><strong>SaaS subscription</strong> (per-employee per-month)</p>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Segment</th>
+                    <th>Price</th>
+                    <th>Target Volume</th>
+                    <th>Year 3 ARR</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>SMB (100-500 emp)</strong></td>
+                    <td>$1/emp/month</td>
+                    <td>200 companies × 250 avg emp</td>
+                    <td>$600K</td>
+                </tr>
+                <tr>
+                    <td><strong>Mid-Market (500-5K emp)</strong></td>
+                    <td>$0.50/emp/month</td>
+                    <td>150 companies × 1,500 avg emp</td>
+                    <td>$1.35M</td>
+                </tr>
+                <tr>
+                    <td><strong>Enterprise (5K+ emp)</strong></td>
+                    <td>$0.25/emp/month</td>
+                    <td>50 companies × 10K avg emp</td>
+                    <td>$1.5M</td>
+                </tr>
+                <tr>
+                    <td><strong>Professional Services</strong></td>
+                    <td>$50-100K per engagement</td>
+                    <td>30 implementations/year</td>
+                    <td>$2M</td>
+                </tr>
+                <tr>
+                    <td><strong>Total Year 3 ARR</strong></td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td><strong>$5.45M</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Unit Economics</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>ACV (Annual Contract Value)</strong></td>
+                    <td>$50K-$500K</td>
+                </tr>
+                <tr>
+                    <td><strong>CAC (Customer Acquisition Cost)</strong></td>
+                    <td>$15K-$30K</td>
+                </tr>
+                <tr>
+                    <td><strong>LTV (Lifetime Value)</strong></td>
+                    <td>$150K-$1.5M</td>
+                </tr>
+                <tr>
+                    <td><strong>LTV:CAC Ratio</strong></td>
+                    <td>8-10x</td>
+                </tr>
+                <tr>
+                    <td><strong>Payback Period</strong></td>
+                    <td>6-9 months</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Profitability Projection</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Customers</th>
+                    <th>ARR</th>
+                    <th>Gross Profit</th>
+                    <th>Operating Expense</th>
+                    <th>Net Income</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Year 1</strong></td>
+                    <td>5-10</td>
+                    <td>$250K</td>
+                    <td>$112K</td>
+                    <td>$400K</td>
+                    <td>($288K)</td>
+                </tr>
+                <tr>
+                    <td><strong>Year 2</strong></td>
+                    <td>20-30</td>
+                    <td>$1.2M</td>
+                    <td>$540K</td>
+                    <td>$700K</td>
+                    <td>($160K)</td>
+                </tr>
+                <tr>
+                    <td><strong>Year 3</strong></td>
+                    <td>50+</td>
+                    <td>$5.45M</td>
+                    <td>$2.45M</td>
+                    <td>$1.8M</td>
+                    <td><strong>$650K</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- COMPETITIVE ADVANTAGES -->
+        <h1 id="competitive-advantages">Competitive Advantages</h1>
+
+        <h3>1. Natural Language Policy Parsing</h3>
+        <ul>
+            <li>Only player combining LLMs + rules engine</li>
+            <li>Eliminates manual rule coding (saves 40+ hours per customer annually)</li>
+            <li>Competitors still require IT/business analyst time</li>
+        </ul>
+
+        <h3>2. Multi-Objective Ranking</h3>
+        <ul>
+            <li>Balances competing goals (compliance vs. cost vs. loyalty)</li>
+            <li>Not a black-box—explainable through confidence scores</li>
+            <li>Learns traveler preferences over time</li>
+        </ul>
+
+        <h3>3. Confidence Calibration</h3>
+        <ul>
+            <li>Transparency builds trust</li>
+            <li>No other vendor publicly commits to confidence scoring</li>
+            <li>Differentiator for CFOs/risk officers</li>
+        </ul>
+
+        <h3>4. Domain Expertise in Travel</h3>
+        <ul>
+            <li>Deep understanding of airline/hotel loyalty mechanics</li>
+            <li>Real-time integration with all major GDSs</li>
+            <li>Compliance expertise (per diem, budget rules)</li>
+        </ul>
+
+        <h3>5. Speed to Value</h3>
+        <ul>
+            <li>Policies live in 2 weeks (vs. 3-6 months for traditional implementations)</li>
+            <li>Self-serve for SMB segment</li>
+            <li>Immediate ROI visibility</li>
+        </ul>
+
+        <!-- RISK ANALYSIS -->
+        <h1 id="risk-analysis">Risk Analysis & Mitigation</h1>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Risk</th>
+                    <th>Impact</th>
+                    <th>Probability</th>
+                    <th>Mitigation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Recommendation quality low</strong></td>
+                    <td>Product failure</td>
+                    <td>Medium</td>
+                    <td>Rigorous experimentation (47% CTR gate)</td>
+                </tr>
+                <tr>
+                    <td><strong>GDS API changes</strong></td>
+                    <td>Integration breaks</td>
+                    <td>Low</td>
+                    <td>Partnerships, flexible architecture</td>
+                </tr>
+                <tr>
+                    <td><strong>Compliance complexity</strong></td>
+                    <td>Policy parsing fails</td>
+                    <td>Medium</td>
+                    <td>Domain experts, iterative refinement</td>
+                </tr>
+                <tr>
+                    <td><strong>Market adoption slow</strong></td>
+                    <td>Revenue miss</td>
+                    <td>Medium</td>
+                    <td>Strong sales motion, proof points</td>
+                </tr>
+                <tr>
+                    <td><strong>Traveler resistance</strong></td>
+                    <td>Low adoption</td>
+                    <td>Low</td>
+                    <td>Superior UX, education, incentives</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ROADMAP -->
+        <h1 id="roadmap">Roadmap</h1>
+
+        <h2>Q1 2026 (Foundation)</h2>
+        <ul>
+            <li>Complete experimental validation</li>
+            <li>Polish prototype UX</li>
+            <li>Finalize pricing model</li>
+            <li>Sales materials & case studies</li>
+        </ul>
+
+        <h2>Q2 2026 (Pilot)</h2>
+        <ul>
+            <li>Land 2-3 pilot customers</li>
+            <li>Build customer dashboard</li>
+            <li>Refine confidence model with real data</li>
+            <li>Implement feedback loops</li>
+        </ul>
+
+        <h2>Q3 2026 (Scale)</h2>
+        <ul>
+            <li>10+ customers signed</li>
+            <li>Mobile app MVP</li>
+            <li>Loyalty program integrations (United, Amex)</li>
+            <li>API for TMC partners</li>
+        </ul>
+
+        <h2>Q4 2026 (Expansion)</h2>
+        <ul>
+            <li>25+ customers, $1M+ ARR</li>
+            <li>International expansion (Canada, Europe)</li>
+            <li>Advanced analytics (predictive spend, anomaly detection)</li>
+            <li>White-label option for TMCs</li>
+        </ul>
+
+        <h2>2027 (Growth)</h2>
+        <ul>
+            <li>50+ customers, $5M+ ARR</li>
+            <li>Profitability achieved</li>
+            <li>Platform expansion (meetings/events, ground transportation)</li>
+            <li>Series A funding preparation</li>
+        </ul>
+
+        <!-- SUCCESS CRITERIA -->
+        <h1 id="success-criteria">Success Criteria</h1>
+
+        <h2>Product Success</h2>
+        <ul>
+            <li>✓ <strong>47%+ recommendation CTR</strong> (vs. 28% baseline)</li>
+            <li>✓ <strong>82%+ policy compliance</strong> (vs. 68% baseline)</li>
+            <li>✓ <strong>92%+ confidence score accuracy</strong> (calibration error &lt;3pp)</li>
+            <li>✓ <strong>$240+ savings per trip</strong> for frequent travelers</li>
+            <li>✓ <strong>4.5+ NPS</strong> from customers</li>
+        </ul>
+
+        <h2>Business Success</h2>
+        <ul>
+            <li>✓ <strong>10+ paying customers by end of Year 1</strong></li>
+            <li>✓ <strong>$250K ARR by end of Year 1, $5M+ by Year 3</strong></li>
+            <li>✓ <strong>LTV:CAC ratio > 5x</strong></li>
+            <li>✓ <strong>Net Retention Rate (NRR) > 110%</strong></li>
+            <li>✓ <strong>Path to profitability by Year 3</strong></li>
+        </ul>
+
+        <h2>Market Success</h2>
+        <ul>
+            <li>✓ <strong>Recognized leader in AI travel management</strong></li>
+            <li>✓ <strong>Featured in major business publications</strong> (HBR, Forbes, WSJ)</li>
+            <li>✓ <strong>Strategic partnerships</strong> with airlines, hotels, TMCs</li>
+            <li>✓ <strong>20%+ market share</strong> of SMB travel management (3-5 years)</li>
+        </ul>
+
+        <div class="highlight-box" style="margin-top: 60px;">
+            <strong>🚀 Bottom Line:</strong> Policy2Recommendations addresses a massive, underserved market pain point: making corporate travel policy compliance effortless and profitable. The technology is ready. The market is ready. The opportunity is now.
+        </div>
+    </div>
+
+    <footer>
+        <p>Policy2Recommendations Product Case Study | January 2026 | AI-Powered Travel Management</p>
+        <p style="margin-top: 12px; opacity: 0.7;">📖 Ready to dive deeper? Visit <a href="index.html" style="color: var(--color-primary);">the portfolio hub</a> to explore interactive prototypes and detailed analyses.</p>
+    </footer>
+
+    <script>
+        // Add smooth scrolling for TOC links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                if (this.getAttribute('href') !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
