@@ -197,6 +197,8 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .artifact-card::before {
@@ -218,6 +220,26 @@
 
         .artifact-card:hover::before {
             left: 0;
+        }
+
+        /* Special style for the new agentic card */
+        .artifact-card.agentic {
+            border-color: #a84b2f;
+            background: #fffafa;
+        }
+        .artifact-card.agentic::before {
+            background: #a84b2f;
+        }
+        .artifact-card.agentic .artifact-number {
+            background: #ffebe6;
+            color: #a84b2f;
+        }
+        .artifact-card.agentic .artifact-link {
+            color: #a84b2f;
+        }
+        .artifact-card.agentic:hover {
+            border-color: #a84b2f;
+            box-shadow: 0 8px 24px rgba(168, 75, 47, 0.15);
         }
 
         .artifact-number {
@@ -251,6 +273,7 @@
             color: var(--color-text-secondary);
             margin-bottom: 16px;
             min-height: 40px;
+            flex-grow: 1;
         }
 
         .artifact-link {
@@ -260,10 +283,11 @@
             font-weight: 600;
             font-size: 14px;
             transition: all 0.2s;
+            margin-top: auto;
         }
 
         .artifact-link:hover {
-            color: var(--color-primary-hover);
+            text-decoration: underline;
             transform: translateX(4px);
         }
 
@@ -342,35 +366,13 @@
         }
 
         @media (max-width: 768px) {
-            header {
-                padding: 50px 0;
-            }
-
-            h1 {
-                font-size: 32px;
-            }
-
-            .subtitle {
-                font-size: 16px;
-            }
-
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .metrics-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .cta-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .btn {
-                width: 100%;
-                max-width: 300px;
-            }
+            header { padding: 50px 0; }
+            h1 { font-size: 32px; }
+            .subtitle { font-size: 16px; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .btn { width: 100%; max-width: 300px; }
         }
     </style>
 </head>
@@ -482,6 +484,14 @@
                     <div class="artifact-description">Comprehensive business case: market, strategy, financials, roadmap</div>
                     <a href="case-study.html" class="artifact-link">View Document →</a>
                 </div>
+
+                <div class="artifact-card agentic">
+                    <div class="artifact-number">6</div>
+                    <span class="artifact-emoji">🤖</span>
+                    <div class="artifact-title">Agentic Evolution</div>
+                    <div class="artifact-description">Future Outlook: The architectural roadmap for moving from recommendations to autonomous agents.</div>
+                    <a href="agentic.html" class="artifact-link">View Strategy →</a>
+                </div>
             </div>
         </section>
 
@@ -547,6 +557,7 @@
                         <li><a href="journeys.html">User Journey Map</a></li>
                         <li><a href="experiments.html">Experiment Design</a></li>
                         <li><a href="case-study.html">Case Study</a></li>
+                        <li><a href="agentic.html">Agentic Evolution</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
@@ -576,4 +587,3 @@
     </footer>
 </body>
 </html>
-

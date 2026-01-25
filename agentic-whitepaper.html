@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy2Recommendations - Technical White Paper</title>
+    <style>
+        /* Design System Integration */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --color-primary: #218089;
+            --color-primary-hover: #1d7480;
+            --color-primary-light: #e8f5f7;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-text: #134252;
+            --color-text-secondary: #4a5568;
+            --color-code-bg: #f7fafc;
+            --color-tier-1: #218089;
+            --color-tier-2: #d69e2e;
+            --color-tier-3: #a84b2f;
+            --color-error-bg: #fff5f5;
+            --color-error-text: #c53030;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 60px 20px; }
+        
+        /* Navigation & Header */
+        .nav-back {
+            display: inline-flex; align-items: center; margin-bottom: 40px;
+            color: var(--color-primary); text-decoration: none; font-weight: 600; font-size: 14px;
+        }
+        .nav-back:hover { text-decoration: underline; }
+
+        .doc-header { margin-bottom: 60px; border-bottom: 1px solid var(--color-border); padding-bottom: 30px; }
+        .doc-meta { font-family: monospace; color: var(--color-text-secondary); font-size: 14px; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { font-size: 40px; margin-bottom: 24px; letter-spacing: -0.5px; line-height: 1.2; }
+        .abstract { font-size: 20px; color: var(--color-text-secondary); max-width: 750px; line-height: 1.6; }
+
+        /* Typography */
+        h2 { 
+            font-size: 28px; 
+            margin: 80px 0 32px; 
+            border-left: 5px solid var(--color-primary); 
+            padding-left: 20px; 
+            color: var(--color-text);
+            scroll-margin-top: 40px;
+        }
+        
+        h3 { 
+            font-size: 22px; 
+            margin: 40px 0 20px; 
+            font-weight: 700; 
+            color: var(--color-text); 
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 10px;
+        }
+        
+        h4 { font-size: 18px; margin: 24px 0 12px; font-weight: 700; color: var(--color-primary); }
+        
+        p { margin-bottom: 20px; color: var(--color-text-secondary); }
+        
+        ul, ol { margin-left: 24px; margin-bottom: 24px; color: var(--color-text-secondary); }
+        li { margin-bottom: 12px; padding-left: 8px; }
+
+        /* Special Components */
+        .quote-box {
+            background: var(--color-primary-light); border-radius: 8px; padding: 24px; margin: 32px 0;
+            font-style: italic; color: var(--color-text); border-left: 4px solid var(--color-primary);
+        }
+
+        /* Tier Cards (Section B) */
+        .tier-card {
+            background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;
+            padding: 32px; margin-bottom: 24px;
+        }
+        .tier-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 12px; }
+        .tier-title { font-weight: 800; font-size: 18px; text-transform: uppercase; }
+        .tier-badge { font-family: monospace; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #eee; font-weight: 600; }
+        
+        .tier-1 .tier-title { color: var(--color-tier-1); }
+        .tier-2 .tier-title { color: var(--color-tier-2); }
+        .tier-3 .tier-title { color: var(--color-tier-3); }
+
+        .agent-message {
+            font-family: 'Courier New', monospace; background: var(--color-code-bg); padding: 20px;
+            border-radius: 6px; border: 1px solid var(--color-border); font-size: 14px; color: #333; margin: 20px 0;
+        }
+
+        /* Failure Mode Blocks (Section C) */
+        .failure-block {
+            background: var(--color-surface);
+            padding: 32px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        
+        .failure-header { 
+            background: var(--color-error-bg); 
+            color: var(--color-error-text);
+            padding: 12px 16px;
+            border-radius: 6px;
+            display: inline-block;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Tables */
+        .tech-table {
+            width: 100%; border-collapse: collapse; margin: 32px 0; background: var(--color-surface);
+            font-size: 15px; border: 1px solid var(--color-border);
+        }
+        .tech-table th { background: var(--color-primary-light); text-align: left; padding: 16px; font-weight: 700; color: var(--color-primary); border-bottom: 2px solid var(--color-border); }
+        .tech-table td { padding: 16px; border-bottom: 1px solid var(--color-border); vertical-align: top; color: var(--color-text-secondary); }
+
+        /* Metric Block (Section D) */
+        .metric-definition {
+            margin-bottom: 32px;
+            border-left: 3px solid var(--color-border);
+            padding-left: 24px;
+        }
+        .metric-target {
+            font-family: monospace;
+            background: var(--color-code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .insight-box {
+            background: #2d3748; color: white; padding: 32px; border-radius: 8px; margin: 40px 0;
+        }
+        .insight-box h3 { color: white; margin-top: 0; border: none; }
+        .insight-box p { color: #cbd5e0; margin-bottom: 0; }
+
+        .doc-footer { margin-top: 120px; padding-top: 40px; border-top: 1px solid var(--color-border); color: var(--color-text-secondary); font-size: 14px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="nav-back">← Back to Portfolio Hub</a>
+
+        <header class="doc-header">
+            <div class="doc-meta">STRATEGIC ARCHITECTURE DOCUMENT | VERSION 1.0</div>
+            <h1>Agentic Evolution: From Recommendations to Autonomous Systems</h1>
+            <p class="abstract">
+                The Policy2Recommendations engine proved the power of AI-assisted decision-making. Now we advance to the next frontier: autonomous systems that don't just recommend—they decide, and they know when to defer to humans.
+            </p>
+        </header>
+
+        <section id="section-a">
+            <h2>A. The Opportunity</h2>
+            <p>
+                Recommendations are the first step toward autonomous systems. The next step is knowing when to act, when to ask, and when to defer.
+            </p>
+            <p>
+                Policy2Recommendations proved the value of AI-assisted decision-making: the system ranks three hotel options with confidence scores, Travel Managers review them, and approve or reject based on policy fit and business needs. The results were strong—47% click-through rate and 82% policy compliance. But the architecture had a scaling bottleneck: <strong>every booking still required human approval.</strong>
+            </p>
+            <p>
+                As booking volume increased, this became an operational burden. Travel Managers spent hours each week reviewing similar decisions, approving low-risk bookings that met obvious policy constraints. The system was doing the hard cognitive work—understanding policy, evaluating options, calculating confidence—but then waiting for humans to confirm what the model already knew.
+            </p>
+            <div class="quote-box">
+                This is where agents enter the picture. An agent doesn't just <em>recommend</em>; it <em>decides</em>. More precisely, it decides <em>how to decide</em>: Which decisions can I make autonomously? Which decisions need human validation? Which decisions require expert judgment?
+            </div>
+            <p>
+                The opportunity is stark: by adding an orchestration layer on top of Policy2Recommendations, we can transform an assistant into an autonomous actor. The goal is ambitious but achievable—<strong>80% of bookings handled without human intervention</strong>.
+            </p>
+            <p>
+                This isn't about removing humans from travel policy. It's about removing friction. Travel Managers focus on exceptions and strategy. The agent handles routine approvals. Travelers get instant confirmations instead of delays. The business reduces operational overhead while improving compliance.
+            </p>
+        </section>
+
+        <section id="section-b">
+            <h2>B. Agent Architecture: 3-Tier Orchestration</h2>
+            <p>
+                The agent operates on a simple principle: <strong>confidence determines autonomy</strong>. Every booking triggers a confidence calculation—how certain is the system that this decision is correct? That confidence score routes the booking to one of three decision tiers.
+            </p>
+
+            <div class="tier-card tier-1">
+                <div class="tier-header">
+                    <div class="tier-title">Tier 1: Auto-Approve</div>
+                    <div class="tier-badge">Confidence > 0.85</div>
+                </div>
+                <p>
+                    Low-risk bookings with high confidence flow directly through. Criteria are tight: hotel booking under $300/night, 3-star or better, no policy ambiguity. The agent evaluates the booking against the Policy Engine, confirms it meets constraints, and directly submits to the booking system. Travel Manager receives a notification confirming the approval—transparency without friction.
+                </p>
+                <p>
+                    This tier handles ~70% of bookings. Execution is fast (<3 seconds from detection to submission), and the operational burden is zero. Risk is minimized through stringent criteria: we only auto-approve when we're very confident <em>and</em> the stakes are low.
+                </p>
+            </div>
+
+            <div class="tier-card tier-2">
+                <div class="tier-header">
+                    <div class="tier-title">Tier 2: Gated Approval</div>
+                    <div class="tier-badge">Confidence 0.70 - 0.85</div>
+                </div>
+                <p>
+                    Medium-confidence scenarios—booking under $400/night, slightly ambiguous policy fit, moderately complex scenarios—require human validation, but with minimal friction. The agent sends a Slack or Teams message to the Travel Manager with the recommendation, confidence score, and reasoning:
+                </p>
+                <div class="agent-message">
+                    "Policy2Recommendations suggests: Hyatt, $250/night, 4-star rating, 78% confidence.<br>
+                    Policy fit: ✓ Within budget. ✓ Brand preference.<br>
+                    ⚠️ Moderate confidence due to flexible 'metropolitan area' definition.<br>
+                    [Approve] [Modify] [Reject]"
+                </div>
+                <p>
+                    Travel Manager clicks a button to approve, modify, or reject. The system sets a 2-minute response window; if the manager doesn't respond, the system escalates to Tier 3 as a safety fallback. This tier handles ~15% of bookings and keeps humans in the loop for decisions that matter, but eliminates the cognitive overhead of reading full policy documents and evaluating options from scratch.
+                </p>
+            </div>
+
+            <div class="tier-card tier-3">
+                <div class="tier-header">
+                    <div class="tier-title">Tier 3: Escalate</div>
+                    <div class="tier-badge">Confidence < 0.70</div>
+                </div>
+                <p>
+                    Low-confidence scenarios—novel edge cases, policy ambiguity, out-of-policy requests—route directly to a Travel Manager specialist. The agent doesn't recommend; it escalates with reasoning:
+                </p>
+                <div class="agent-message">
+                    "I'm uncertain here because the policy is ambiguous: it says 'metropolitan areas only,' but I'm only 60% confident this location qualifies. This needs expert judgment."
+                </div>
+                <p>
+                    The Travel Manager applies institutional knowledge, policy context, and judgment. This tier handles ~5-10% of bookings and ensures that edge cases don't get mishandled by the system.
+                </p>
+            </div>
+
+            <h3>System Orchestration</h3>
+            <p>Behind these three tiers is an orchestration layer that coordinates multiple components:</p>
+            <ul>
+                <li><strong>Policy Engine</strong>: Evaluates the booking against travel policy constraints (budget, brand preference, geography, timing)</li>
+                <li><strong>Data Layer</strong>: Fetches real-time hotel availability, pricing, and rating data from the Data Lake</li>
+                <li><strong>Confidence Model</strong>: Estimates decision quality by analyzing feature signals, policy extraction clarity, and historical accuracy on similar bookings</li>
+                <li><strong>Decision Gate</strong>: Routes to Tier 1/2/3 based on confidence + risk profile</li>
+                <li><strong>Action Layer</strong>: Submits booking, sends notifications, escalates, and logs all decisions</li>
+                <li><strong>Monitoring</strong>: Tracks outcomes (did the booking succeed?), detects drift (are managers overriding decisions more often?), and identifies failure modes</li>
+            </ul>
+            <p>
+                This orchestration is what separates a good recommendation engine from a good agentic system. The agent doesn't just predict; it <em>routes intelligently</em> based on risk and confidence. It knows its own limitations and escalates appropriately. It logs every decision for audit and improvement.
+            </p>
+        </section>
+
+        <section id="section-c">
+            <h2>C. Failure Mode Design: Engineering for Resilience</h2>
+            <p>
+                The goal is not to prevent failures; it's to design systems that detect, contain, and learn from them.
+            </p>
+            <p>
+                This principle separates mature AI systems from fragile ones. A system that's designed only to succeed in the happy path will fail catastrophically when reality diverges from expectations. Instead, we architect <em>around</em> failure. We assume things will break. We design the system to detect the break, contain the damage, and automatically improve.
+            </p>
+            <p>
+                The agentic travel system encounters four critical failure modes. For each, we show what breaks, why it matters, how the system catches it, and how the system fixes itself.
+            </p>
+
+            <div class="failure-block">
+                <div class="failure-header">Failure Mode #1: Hallucination in Policy Parsing</div>
+                
+                <h4>What Goes Wrong</h4>
+                <p>The LLM extracts a constraint from the travel policy that doesn't actually exist in the policy text. Example: Policy says "economy hotels preferred"—the LLM extracts "economy hotels mandatory." The system now enforces a rule that was never written.</p>
+                <p>This happens because LLMs often infer broader patterns from limited examples. They're trained to be helpful and complete patterns, which makes them prone to "confabulating" details that seem consistent but aren't grounded in the actual text.</p>
+
+                <h4>Why This Breaks the System</h4>
+                <p>The agent now rejects good bookings based on phantom constraints. A 4-star hotel that perfectly fits the policy gets escalated or rejected because the LLM invented a "no luxury hotels" rule. Travel Managers see the system rejecting sensible bookings. Trust collapses. Adoption drops.</p>
+
+                <h4>How We Detect It</h4>
+                <p>The confidence model is trained to identify hallucination indicators. Key signal: <em>is the extracted constraint directly grounded in the policy text?</em> The system performs a reverse check—it looks for the original policy language that justified the extracted constraint. If the constraint can't be traced back to actual policy text, it's flagged as a potential hallucination.</p>
+                <p>Additionally, when Travel Managers escalate or override decisions (Tier 3 escalations or Tier 2 rejections), we collect this feedback. If a manager says "This extraction is wrong—the policy doesn't say that," the system logs it as a hallucination signal.</p>
+
+                <h4>How We Fix It</h4>
+                <p>When the system detects a hallucination:</p>
+                <ol>
+                    <li>The booking is escalated to Tier 3 (Travel Manager specialist), with the reasoning: "Uncertain because policy extraction may be unreliable."</li>
+                    <li>The Travel Manager flags the extraction as incorrect and provides the corrected interpretation.</li>
+                    <li>This feedback is fed into an RLHF (Reinforcement Learning from Human Feedback) loop. The LLM is fine-tuned with positive examples (correct extractions) and negative examples (the hallucinations the manager corrected).</li>
+                    <li>The <strong>hallucination rate</strong> becomes a monitored KPI. Weekly dashboards track: "How many policy extractions contain hallucinations?" Target: &lt;2%.</li>
+                    <li>Retraining happens automatically when hallucination rate exceeds threshold.</li>
+                </ol>
+                <p><strong>Outcome:</strong> System self-corrects. The LLM learns from its mistakes. Policy parsing accuracy improves over time.</p>
+            </div>
+
+            <div class="failure-block">
+                <div class="failure-header">Failure Mode #2: Distribution Shift (Model Drift)</div>
+                
+                <h4>What Goes Wrong</h4>
+                <p>The confidence model was trained on Q1 policies and booking patterns. By Q3, the world has changed. Remote work expands; travel patterns shift; hotel preferences change. The model's assumptions no longer match reality. Its confidence scores become miscalibrated—it's confident in predictions it shouldn't be, or uncertain about patterns it should recognize.</p>
+                <p>This is one of the hardest problems in ML systems: the model doesn't know it's wrong. It continues making high-confidence predictions based on outdated patterns.</p>
+
+                <h4>Why This Breaks the System</h4>
+                <p>Travel Managers start overriding the agent's decisions more frequently. The override rate—the % of agent decisions that managers reject—creeps up from 8% to 15%. The system appears less reliable. Adoption plateaus. The business loses the efficiency gains they expected.</p>
+
+                <h4>How We Detect It</h4>
+                <p>We monitor the <strong>override rate</strong> as a leading indicator of model drift. Every week, we measure: "Of all Tier 1 and Tier 2 decisions the agent made, what % did managers ultimately reject?"</p>
+                <p>If this rate exceeds 10%, we trigger an alert: "Override rate elevated to 15%; model drift detected."</p>
+                <p>Simultaneously, we perform <strong>manual drift analysis</strong>: Sample 50 recently overridden bookings and manually label them. Look for patterns. Maybe managers are rejecting bookings in specific cities, or hotel categories, or price ranges. This pattern reveals where the model has drifted.</p>
+
+                <h4>How We Fix It</h4>
+                <p>Once drift is detected:</p>
+                <ol>
+                    <li>Data science team retrains the confidence model on recent Q3 data (last 4 weeks of bookings).</li>
+                    <li>The new model is A/B tested: 50% of traffic sees the old model, 50% sees the new model.</li>
+                    <li>We measure override rates for both cohorts. If the new model achieves &lt;8% override rate while the old model stays at 15%, the new model wins.</li>
+                    <li>The new model is rolled out to 100%.</li>
+                    <li>Retraining frequency is automated: every 2 weeks (or when override rate exceeds 10%), the system automatically retrains.</li>
+                </ol>
+                <p>The system heals itself without PM intervention.</p>
+                <p><strong>Outcome:</strong> Model stays calibrated to current reality. Drift is detected quickly and corrected before it impacts user trust.</p>
+            </div>
+
+            <div class="failure-block">
+                <div class="failure-header">Failure Mode #3: API Failure (Degradation of External Services)</div>
+                
+                <h4>What Goes Wrong</h4>
+                <p>The hotel availability and pricing API goes down. The system can't fetch real-time prices. It falls back to stale cached data (from 2 hours ago). The agent makes recommendations based on outdated prices. Travelers click "Book Now," but the actual hotel price has jumped by $50. Booking fails. Customer frustration.</p>
+                <p>This seems like a minor technical issue, but it cascades: failed bookings → support tickets → low NPS → lost trust in the platform.</p>
+
+                <h4>Why This Breaks the System</h4>
+                <p>Each failed booking erodes user confidence. If this happens repeatedly, travelers stop using the system and revert to manual booking. The system loses its primary value—instant, reliable recommendations.</p>
+
+                <h4>How We Detect It</h4>
+                <p>We implement <strong>circuit breaker pattern</strong>: the system monitors the hotel API for success/failure rates and latency.</p>
+                <ul>
+                    <li>If the API fails (returns 5xx errors) or times out, the circuit breaker trips.</li>
+                    <li>System immediately logs: "Hotel API unavailable; switching to degraded mode."</li>
+                    <li>Metrics dashboard shows: API uptime, response latency, error rate.</li>
+                </ul>
+                <p>Additionally, we monitor <strong>fallback rate</strong>: "How often are we using cached prices instead of real-time prices?" If this exceeds 5%, something is wrong.</p>
+
+                <h4>How We Fix It</h4>
+                <p>When the API fails:</p>
+                <ol>
+                    <li><strong>Immediate fallback</strong>: System switches to cached prices (from last 1 hour).</li>
+                    <li><strong>Retry logic</strong>: Automatically retry the API call 3x with exponential backoff (1 sec, 2 sec, 4 sec).</li>
+                    <li><strong>Degraded mode messaging</strong>: Every recommendation now shows: "Real-time prices unavailable; using cached rates from 45 min ago. Confidence: 65%" (note: confidence is automatically lowered in degraded mode).</li>
+                    <li><strong>Escalation protocol</strong>: Because confidence dropped, more bookings escalate to Tier 2/3 instead of auto-approving.</li>
+                    <li><strong>Monitoring</strong>: System alerts operations team when API has been unavailable for >5 minutes.</li>
+                </ol>
+                <p>As soon as the API recovers, the circuit breaker resets, and the system resumes normal operation.</p>
+                <p><strong>Outcome:</strong> System gracefully degrades instead of failing. Users get honest messaging about data freshness. Booking still completes, but with human oversight. No silent failures.</p>
+            </div>
+
+            <div class="failure-block">
+                <div class="failure-header">Failure Mode #4: User Distrust (Adoption Failure)</div>
+                
+                <h4>What Goes Wrong</h4>
+                <p>The system works perfectly from a technical standpoint. Confidence scores are calibrated. Override rates are low. Policy compliance is high. But travelers don't <em>believe</em> the system. They see an agent auto-approve their booking and think: "Wait, how does a machine know what's right for me?" They override the decision out of doubt, not because the decision was wrong.</p>
+                <p>This is the behavioral failure mode. The system fails not because it's broken, but because users don't trust it.</p>
+
+                <h4>Why This Breaks the System</h4>
+                <p>If travelers don't use the system, it doesn't matter how good it is. Adoption stalls. The business fails to capture the efficiency gains. The agent's 80% hands-free goal becomes unachievable because users manually intervene in the remaining 20%.</p>
+
+                <h4>How We Detect It</h4>
+                <p>We track three signals:</p>
+                <ol>
+                    <li><strong>System Trust Score</strong>: Post-booking survey asking travelers: "How confident are you in this recommendation?" (NPS-style scale: 0-10). Track average trust score by cohort. Target: >70.</li>
+                    <li><strong>Traveler Override Rate</strong>: Of agent-approved bookings, what % do travelers manually reject or modify? This is different from manager override rate. If >15%, travelers don't trust the system.</li>
+                    <li><strong>Feedback Sentiment</strong>: Qualitative feedback from travelers. "Why did you change this recommendation?" Negative sentiment indicates distrust.</li>
+                </ol>
+
+                <h4>How We Fix It</h4>
+                <p>We implement a <strong>transparency and explainability layer</strong>:</p>
+                <ol>
+                    <li><strong>Every auto-decision includes a "Why" statement</strong>: When the agent approves a booking, it shows: "I approved this Hyatt booking because: (1) Within policy budget ($250 < $300), (2) Brand preference match (Hyatt on preferred list), (3) High star rating (4-star meets 'quality' requirement), (4) Competitor analysis (10% cheaper than nearby Marriott), (5) 87% confidence in all constraints."</li>
+                    <li><strong>Override control</strong>: Travelers can always override. When they do, the system asks: "Why did you change this? Help us improve." This feedback is logged and fed back to the model.</li>
+                    <li><strong>Confidence transparency</strong>: Every recommendation shows the confidence score. "Confidence: 87%" helps travelers understand how certain the system is.</li>
+                    <li><strong>Weekly trust reports</strong>: Dashboard shows trust score by traveler segment. If business travelers trust the system (80+) but leisure travelers don't (50), we investigate why and adjust the system.</li>
+                    <li><strong>Feedback loop</strong>: When a traveler overrides a decision and explains why, that feedback is collected. If >10% of travelers say "I prefer premium hotels, not standard ones," the system adjusts its hotel category extraction for that traveler.</li>
+                </ol>
+                <p><strong>Outcome:</strong> Users develop confidence in the system because they understand its reasoning. Override rate drops. Adoption increases. The system's value is realized.</p>
+            </div>
+
+            <h3>Comparative Summary: How Systems Heal Themselves</h3>
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th>Failure Mode</th>
+                        <th>Detection</th>
+                        <th>Recovery</th>
+                        <th>Learning</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Hallucination</strong></td>
+                        <td>Confidence model flags non-grounded constraints</td>
+                        <td>Escalate to Tier 3; collect manager feedback</td>
+                        <td>RLHF fine-tuning; retrain weekly if >2% hallucination rate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Distribution Shift</strong></td>
+                        <td>Override rate monitoring; manual drift analysis</td>
+                        <td>Retrain on recent data; A/B test new model</td>
+                        <td>Automated retraining every 2 weeks or when override >10%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>API Failure</strong></td>
+                        <td>Circuit breaker + retry logic</td>
+                        <td>Fallback to cached data; degrade confidence scores</td>
+                        <td>Escalate failures to ops; post-incident analysis</td>
+                    </tr>
+                    <tr>
+                        <td><strong>User Distrust</strong></td>
+                        <td>Trust score surveys; override rate; feedback sentiment</td>
+                        <td>Transparency layer; explainability; user feedback loop</td>
+                        <td>Continuous model adjustment based on traveler preferences</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="insight-box">
+                <h3>Key Insight: Observability as Architecture</h3>
+                <p>
+                    This section demonstrates a critical insight that separates junior PMs from strategic architects: <strong>observability is not an afterthought; it's core architecture.</strong>
+                </p>
+                <p style="margin-top: 16px;">
+                    Every decision the system makes is logged with:
+                </p>
+                <ul>
+                    <li>Inputs (traveler profile, hotel details, policy constraints)</li>
+                    <li>Confidence score and reasoning</li>
+                    <li>Actual outcome (did the booking succeed? did the manager approve?)</li>
+                    <li>Feedback (if manager overrode, why?)</li>
+                </ul>
+                <p>
+                    This creates a massive dataset of ground truth. Every failure is visible. Every pattern is learnable. The system doesn't degrade over time—it improves. This is why we call it a "self-healing system." It's not magic. It's disciplined engineering: measure everything, detect problems early, fix them automatically, and learn from every mistake.
+                </p>
+            </div>
+        </section>
+
+        <section id="section-d">
+            <h2>D. Evaluation Framework: Measuring What Matters</h2>
+            <p>
+                A system that cannot be measured cannot be managed. The agentic travel system requires rigorous measurement across three dimensions: <strong>technical performance</strong> (is the model accurate?), <strong>operational health</strong> (is the system reliable?), and <strong>business impact</strong> (is this creating value?).
+            </p>
+            <p>
+                These three levels of metrics are interdependent. A technically accurate model that escalates 95% of decisions creates no business value. A system that operates reliably but recommends expensive hotels doesn't justify the investment. The right framework balances all three.
+            </p>
+
+            <h3>Model-Level Metrics: Technical Accuracy</h3>
+            
+            <div class="metric-definition">
+                <h4>Hallucination Rate <span class="metric-target">Target: &lt;2%</span></h4>
+                <p>Percentage of policy extractions where the LLM invents constraints not present in the original policy text. Measured weekly by:</p>
+                <ul>
+                    <li>Manual auditing of 50 random policy extractions</li>
+                    <li>Comparing LLM output to original policy text</li>
+                    <li>Flagging any extractions where the constraint isn't grounded</li>
+                    <li>Tracking trend over time; alert if exceeds 2%</li>
+                </ul>
+                <p>This is a <em>leading indicator</em> of policy parsing quality. High hallucination rate means the system is about to escalate good bookings or approve bad ones.</p>
+            </div>
+
+            <div class="metric-definition">
+                <h4>Confidence Calibration <span class="metric-target">Target: >85% for "Confidence > 0.85" tier</span></h4>
+                <p>Of all bookings the system rates as ">0.85 confidence," what percentage actually result in successful bookings (no manager override, no traveler complaint, no policy violation)?</p>
+                <p>If the system says "I'm 87% confident," and 85%+ of those decisions actually succeed, the model is well-calibrated. If only 60% succeed, the confidence scores are inflated—the model is overconfident, and we need to retrain.</p>
+            </div>
+
+            <div class="metric-definition">
+                <h4>Latency <span class="metric-target">Target: &lt;3 seconds</span></h4>
+                <p>Time from booking detection to agent decision (through policy evaluation, confidence calculation, routing decision). Measured at p50, p95, p99 to catch outliers.</p>
+                <p>Why this matters: Travel Managers expect near-instant decisions. If latency exceeds 3 seconds, the system feels slow and gets bypassed.</p>
+            </div>
+
+            <h3>System-Level Metrics: Operational Health</h3>
+
+            <div class="metric-definition">
+                <h4>Auto-Decision Rate <span class="metric-target">Target: 80%</span></h4>
+                <p>Percentage of bookings that the system approves autonomously (Tier 1) without human intervention. This is the core KPI—it measures how much operational overhead has been eliminated.</p>
+                <p>Trend matters more than absolute value. If auto-decision rate drops from 80% to 70%, something is wrong (hallucinations increasing? drift detected?). Investigate immediately.</p>
+            </div>
+
+            <div class="metric-definition">
+                <h4>Escalation Accuracy <span class="metric-target">Target: >85%</span></h4>
+                <p>Of all bookings the system escalates to Tier 3 (Travel Manager specialist), what percentage does the manager actually approve (without modification)? If the system escalates a decision, it should be correct—the manager shouldn't have to reverse the escalation.</p>
+                <p>High accuracy (>85%) means the system is correctly identifying edge cases and ambiguities. Low accuracy (<70%) means the system is over-escalating (treating low-confidence decisions as needing expert judgment when they actually don't).</p>
+            </div>
+
+            <div class="metric-definition">
+                <h4>Override Rate <span class="metric-target">Target: &lt;10%</span></h4>
+                <p>Of all Tier 1 and Tier 2 decisions the agent made, what percentage did managers override or reject? This is the primary drift detection signal.</p>
+                <ul>
+                    <li>&lt;8%: Model performing well</li>
+                    <li>8-10%: Watch for drift; investigate patterns</li>
+                    <li>&gt;10%: Model drift detected; trigger retraining</li>
+                    <li>&gt;15%: Serious drift; pause agent deployments; investigate root cause</li>
+                </ul>
+            </div>
+
+            <div class="metric-definition">
+                <h4>End-to-End Latency <span class="metric-target">Target: &lt;10 seconds</span></h4>
+                <p>Time from booking initiated by traveler to final booking submitted to reservation system. Includes agent decision time, notification delays, manager response time, and system submission time.</p>
+                <p>If this exceeds 10 seconds, the traveler experience degrades (feels like a traditional booking process, not an instant agent).</p>
+            </div>
+
+            <div class="metric-definition">
+                <h4>API Availability <span class="metric-target">Target: >99.5%</span></h4>
+                <p>Percentage uptime of the hotel availability and pricing API. Directly measured via synthetic monitoring (pinging the API every 30 seconds).</p>
+                <p>Why 99.5%? That's ~4 hours downtime per month. Acceptable for a backend service but aggressive enough to catch persistent problems.</p>
+            </div>
+
+            <h3>Business-Level Metrics: Value Realization</h3>
+
+            <div class="metric-definition">
+                <h4>Policy Compliance Rate <span class="metric-target">Target: >95%</span></h4>
+                <p>Percentage of final bookings (after agent approval + traveler confirmation) that comply with company travel policy.</p>
+                <p>This is the <em>end-to-end</em> metric. A booking is compliant if:</p>
+                <ul>
+                    <li>Hotel cost per night within budget</li>
+                    <li>Hotel brand on preferred list (or acceptable tier)</li>
+                    <li>Booking date within approved travel window</li>
+                    <li>Location matches approved destinations</li>
+                </ul>
+                <p>Policy compliance >95% proves that the agent is enforcing policy correctly across the full decision pipeline.</p>
+            </div>
+
+            <div class="metric-definition">
+                <h4>Cost Savings per Trip <span class="metric-target">Target: >$240 per trip</span></h4>
+                <p>Average savings per booking compared to the historical baseline (manual bookings before the agent). Calculated as: (Average cost of manual booking) - (Average cost of agent-recommended booking). For corporate travel, this includes both room rates and associated costs (e.g., loyalty point multipliers).</p>
+                <p>If the agent saves $240/trip and the business books 50,000 trips/year, that's <strong>$12M in annual savings</strong>. This is the business case quantifier.</p>
+            </div>
+
+            <div class="metric-definition">
+                <h4>Traveler Satisfaction <span class="metric-target">Target: NPS >70</span></h4>
+                <p>Post-booking survey: "How satisfied were you with the booking process and recommendation?"</p>
+                <p>Net Promoter Score (NPS) = % "Promoters" (9-10) - % "Detractors" (0-6).</p>
+                <ul>
+                    <li>Agent: Target NPS >70 (most travelers find it valuable)</li>
+                    <li>Manual baseline: Typically 40-50 (travelers find manual booking tedious)</li>
+                </ul>
+                <p>Gap >20 points proves the agent improves user experience.</p>
+            </div>
+
+            <div class="metric-definition">
+                <h4>Travel Manager Time Saved <span class="metric-target">Target: >10 hours/week</span></h4>
+                <p>Hours/week each Travel Manager saves from hands-free agent approvals. Calculated as: (Number of auto-approved bookings per week) × (Time to manually review one booking). Typical review time: 3-5 minutes per booking = 0.08 hours. At 80% auto-approval rate with 500 bookings/week = 400 auto-approvals = 32 hours saved.</p>
+                <p>This translates directly to FTE reduction or reallocation to higher-value work (policy strategy, vendor negotiations, cost analysis).</p>
+            </div>
+        </section>
+
+        <section id="section-e">
+            <h2>E. Continuous Improvement Loop: Self-Healing Systems</h2>
+            <p>
+                The evaluation framework tells you <em>what</em> the system is doing. The improvement loop tells you <em>how</em> the system learns from what it did and gets better.
+            </p>
+            <p>
+                A mature AI system is not static. It's continuously monitoring its own performance, detecting degradation, and automatically retraining. This section details the weekly cycle that keeps the system sharp.
+            </p>
+
+            <h3>The 7-Week Improvement Cycle</h3>
+            
+            <ul>
+                <li><strong>Week 1: Baseline Monitoring</strong>
+                    <ul>
+                        <li>Run end-to-end dashboard on Monday morning</li>
+                        <li>Record: Auto-decision rate, override rate, escalation rate, hallucination rate, confidence calibration, latency, API availability, policy compliance rate, cost savings, traveler satisfaction</li>
+                        <li>Document baseline for comparison</li>
+                    </ul>
+                </li>
+                
+                <li><strong>Week 2: Anomaly Detection & Investigation</strong>
+                    <ul>
+                        <li>If any metric is outside target range, investigate</li>
+                        <li>Example: If override rate jumped from 8% to 12%, investigate why (sample 20 recently overridden decisions)</li>
+                        <li>Look for patterns: Same hotel chain? Same policy constraint? Same traveler segment?</li>
+                        <li>Hypothesis: "LLM hallucinating 'metropolitan area' constraint for mid-sized cities"</li>
+                        <li>Manually label the 20 decisions: Did the agent's decision make sense or was it wrong?</li>
+                    </ul>
+                </li>
+
+                <li><strong>Week 3: Root Cause Analysis & Pattern Identification</strong>
+                    <ul>
+                        <li>Consolidate findings from Week 2</li>
+                        <li>Identify systemic pattern</li>
+                        <li>Example output: "In 18/20 overridden decisions, the constraint 'metropolitan areas only' was extracted too broadly. LLM treating 'major cities' as equivalent to 'metropolitan areas.'"</li>
+                        <li>Document the failure mode for the feedback loop</li>
+                    </ul>
+                </li>
+
+                <li><strong>Week 4: Feedback Data Collection</strong>
+                    <ul>
+                        <li>Reach out to Travel Managers who overrode decisions</li>
+                        <li>Ask: "Why did you reject this decision?"</li>
+                        <li>Collect qualitative feedback and quantitative labels</li>
+                        <li>Build feedback dataset: (policy_text, extracted_constraints, manager_correction) pairs</li>
+                    </ul>
+                </li>
+
+                <li><strong>Week 5: RLHF Model Fine-Tuning</strong>
+                    <ul>
+                        <li>Data science team fine-tunes the LLM confidence model using RLHF</li>
+                        <li>Positive examples: "Well-calibrated policy extractions" (manager didn't override)</li>
+                        <li>Negative examples: "Hallucinations" (manager corrected)</li>
+                        <li>Objective: Increase confidence on correct extractions; decrease on hallucinated ones</li>
+                        <li>New model trained; tested on holdout dataset</li>
+                    </ul>
+                </li>
+
+                <li><strong>Week 6: A/B Testing</strong>
+                    <ul>
+                        <li>Deploy old model to 50% of traffic</li>
+                        <li>Deploy new model to 50% of traffic</li>
+                        <li>Run for 1 week; measure: Override rate for both cohorts, Hallucination rate, Policy compliance, Traveler satisfaction</li>
+                        <li>Analyze statistical significance (p-value &lt;0.05)</li>
+                    </ul>
+                </li>
+
+                <li><strong>Week 7: Rollout & Repeat</strong>
+                    <ul>
+                        <li>Results: New model achieves 8% override rate; old model at 12%</li>
+                        <li>Decision: New model wins</li>
+                        <li>Rollout new model to 100% of traffic (gradual: 10% → 25% → 50% → 100%)</li>
+                        <li>Monitor for unexpected behavior; if issues detected, rollback to old model</li>
+                        <li>Week 1 (repeat): Baseline new metrics; check if improvement held</li>
+                        <li>Iterate</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Automation & Scaling</h3>
+            <p>The 7-week cycle is manual for illustration. In reality, much of this is automated:</p>
+            <ul>
+                <li><strong>Week 1</strong>: Automated monitoring dashboard; alerts if metrics exceed thresholds</li>
+                <li><strong>Week 2-3</strong>: Automated anomaly detection; automated pattern identification (clustering overridden decisions by policy constraint, hotel category, traveler segment)</li>
+                <li><strong>Week 4</strong>: Automated feedback collection via Slack integration; Travel Managers log feedback as they work</li>
+                <li><strong>Week 5</strong>: Automated retraining pipeline; model training triggered when feedback dataset reaches N=500+ labeled examples</li>
+                <li><strong>Week 6</strong>: Automated A/B testing framework; statistical significance testing built in</li>
+                <li><strong>Week 7</strong>: Automated rollout with canary deployment; gradual traffic ramp; automatic rollback if error rate exceeds threshold</li>
+            </ul>
+            <p>Result: The system continuously improves without PM intervention. It detects its own problems, fixes them, and learns.</p>
+
+            <div class="insight-box" style="margin-top: 32px; background: #fff; color: #333; border: 1px solid var(--color-border);">
+                <h3 style="color: var(--color-primary);">Key Insight: Feedback as a Product</h3>
+                <p style="color: var(--color-text-secondary);">The continuous improvement loop works only if you have <em>high-quality feedback</em>. This means:</p>
+                <ol style="color: var(--color-text-secondary);">
+                    <li><strong>Make feedback easy</strong>: Travel Managers should be able to flag errors in 10 seconds (Slack reaction or quick comment)</li>
+                    <li><strong>Close the loop</strong>: When a manager provides feedback, show them the impact ("Your feedback helped us improve hallucination detection by 0.5%")</li>
+                    <li><strong>Gamify</strong>: "Top feedback providers" board; recognition for managers who help the system improve</li>
+                    <li><strong>Transparency</strong>: Weekly emails to stakeholders: "Here's what improved this week; here's what still needs work"</li>
+                </ol>
+                <p style="color: var(--color-text-secondary);">When feedback collection is embedded in the workflow (not a separate survey), you get the volume needed for rapid iteration.</p>
+            </div>
+        </section>
+
+        <section id="section-f">
+            <h2>F. Risk Mitigation: Guardrails & Human Oversight</h2>
+            <p>
+                Autonomy without guardrails is chaos. We balance the goal of "hands-free bookings" with the reality that decisions <em>can</em> be wrong, <em>should</em> be reversible, and <em>must</em> include human oversight.
+            </p>
+
+            <h3>Hard Guardrails: Immovable Constraints</h3>
+            <ul>
+                <li><strong>Budget Ceiling</strong>: Never auto-approve (Tier 1) bookings exceeding $500/night, regardless of confidence score. Route to Tier 2 (gated approval) instead. Why $500? It's 40% above target hotel cost (~$350). It signals something unusual—maybe a hotel in an expensive city, maybe a luxury property, maybe a data error. Needs human eyes.</li>
+                <li><strong>Policy Matching Requirement</strong>: Never auto-approve if the booking violates a <em>hard policy constraint</em> (e.g., "only 4-star or above," "only in pre-approved cities," "only on preferred hotel list"). Soft constraints (e.g., "prefer premium brands") can be overridden. Hard constraints cannot.</li>
+                <li><strong>Confidence Threshold as Routing Rule</strong>:
+                    <ul>
+                        <li>Confidence > 0.85 → Tier 1 (auto-approve)</li>
+                        <li>Confidence 0.70-0.85 → Tier 2 (gated approval)</li>
+                        <li>Confidence < 0.70 → Tier 3 (escalate to specialist)</li>
+                    </ul>
+                    These thresholds are <em>enforced</em>, not guidelines. No decision crosses thresholds.
+                </li>
+            </ul>
+
+            <h3>Audit Logging: The Accountability Layer</h3>
+            <p>Every decision the system makes is logged with:</p>
+            <ul>
+                <li><strong>Inputs</strong>: Traveler profile, hotel details, policy constraints</li>
+                <li><strong>Processing</strong>: Policy evaluation results, confidence score, reasoning</li>
+                <li><strong>Decision</strong>: Tier routing, action taken</li>
+                <li><strong>Outcome</strong>: Did booking succeed? Did manager override? Did traveler complain?</li>
+                <li><strong>Timestamp & Actor</strong>: When, and which system component made the decision</li>
+            </ul>
+            <p>This creates a complete audit trail. If something goes wrong, you can reconstruct exactly why the system made that decision.</p>
+            <p><strong>Legal & Compliance Requirement</strong>: In heavily regulated industries (enterprise travel), audit logs are non-negotiable. They prove you acted responsibly even when the system made an error.</p>
+
+            <h3>Explainability: Why Did the System Decide That?</h3>
+            <p>Every decision includes a written explanation:</p>
+            <ul>
+                <li><strong>Tier 1 Auto-Approval Example</strong>: "I approved this Hyatt booking because: (1) Within policy budget ($275 < $300), (2) Brand preference match (Hyatt on preferred list), (3) Quality rating (4-star meets requirement), (4) Competitive pricing (10% cheaper than alternatives), (5) No policy ambiguity detected. Confidence: 87%."</li>
+                <li><strong>Tier 2 Gated Approval Example</strong>: "I recommend approval for this booking, but want your judgment. Reason: Confident on most constraints, but slight ambiguity on 'metropolitan area' definition. Is Dallas, TX a 'major metropolitan area'? Historical precedent says yes, but policy language is vague. Recommend: [Approve] [Modify] [Request Clarification]"</li>
+                <li><strong>Tier 3 Escalation Example</strong>: "I escalate this to you because I'm uncertain. Policy says 'mid-tier hotels preferred,' but this is a boutique property (not a standard hotel chain). Does 'mid-tier' include boutique? Confidence: 52%. This needs expert judgment."</li>
+            </ul>
+            <p>Explainability does two things: (1) Builds trust: Users understand the reasoning; they trust the system more. (2) Enables human correction: When the reasoning is transparent, managers can easily spot if the system is wrong and correct it.</p>
+
+            <h3>Kill Switch: Emergency Override</h3>
+            <p>If the system detects anomalous behavior, it has authority to shut itself down.</p>
+            <p><strong>Trigger Conditions</strong>:</p>
+            <ul>
+                <li>Override rate exceeds 5% in any 1-hour window (vs. 10% weekly target)</li>
+                <li>Hallucination rate exceeds 5% in any 1-hour window (vs. 2% weekly target)</li>
+                <li>API availability drops below 95% (multiple failures)</li>
+                <li>Policy compliance drops below 90%</li>
+            </ul>
+            <p>When triggered:</p>
+            <ol>
+                <li>System immediately halts all Tier 1 (auto-approve) decisions</li>
+                <li>All bookings escalate to Tier 3 (human review)</li>
+                <li>Alert sent to on-call PM: "Agent paused; system in safe mode; investigate immediately"</li>
+                <li>Manual investigation required before resuming</li>
+            </ol>
+            <p><strong>Example</strong>: On Wednesday at 2pm, override rate spikes to 8% (detected hourly). Kill switch triggers. System pauses auto-approvals. Investigation reveals: "LLM confidence model corrupted; retraining from last-good-checkpoint." System resumed after 30 minutes; no customer impact because all decisions were escalated to humans.</p>
+
+            <h3>Regular QA: Human Spot-Checking</h3>
+            <p>Weekly (or bi-weekly), a Travel Manager specialist runs QA:</p>
+            <ul>
+                <li>Sample 20 random decisions from the week (mix of Tier 1/2/3)</li>
+                <li>Validate each decision: Was the routing correct? Was the reasoning sound? Did the outcome match expectations?</li>
+                <li>Flag any systematic issues</li>
+                <li>Document: "Agent escalated 3 legitimate bookings to Tier 3; recommend lowering 'metropolitan area' confidence threshold"</li>
+            </ul>
+            <p>This human spot-check catches issues the automated monitoring might miss (e.g., subtle policy interpretation errors that don't trigger the algorithm but are still wrong).</p>
+
+            <h3>Transparency & Stakeholder Alignment</h3>
+            <p>Monthly stakeholder meeting:</p>
+            <ul>
+                <li><strong>Travel Managers</strong>: "Here's how many bookings were auto-approved, gated, escalated. Here's override rate. Here's what we improved this month."</li>
+                <li><strong>Finance</strong>: "Here's cost savings. Here's policy compliance. Here's impact on Travel Manager FTE."</li>
+                <li><strong>Compliance</strong>: "Here's audit log summary. Here's any policy interpretation questions that came up."</li>
+                <li><strong>Executive</strong>: "Here's business impact: X% hands-free, Y% cost savings, Z% NPS improvement."</li>
+            </ul>
+            <p>Transparency prevents the system from being used as a "black box" that makes decisions in the shadows. Everyone understands how it works, what trade-offs exist, and what the limitations are.</p>
+        </section>
+
+        <div class="doc-footer">
+            <p>Policy2Recommendations | Strategic Architecture Module | January 2026</p>
+        </div>
+    </div>
+</body>
+</html>

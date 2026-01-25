@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy2Recommendations - Agentic Evolution</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --color-primary: #218089;
+            --color-primary-hover: #1d7480;
+            --color-primary-light: #e8f5f7;
+            --color-success: #218089;
+            --color-warning: #a84b2f;
+            --color-error: #c0152f;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-border: #e0e0e0;
+            --color-text: #134252;
+            --color-text-secondary: #666666;
+            --color-gray-light: #f5f5f5;
+            --color-tier-1: #218089;
+            --color-tier-2: #d69e2e;
+            --color-tier-3: #a84b2f;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        
+        .nav-back {
+            display: inline-block;
+            margin-bottom: 24px;
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .nav-back:hover { text-decoration: underline; }
+
+        header { margin-bottom: 60px; }
+        
+        .header-eyebrow {
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--color-text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        h1 { font-size: 42px; margin-bottom: 24px; line-height: 1.2; font-weight: 700; }
+        
+        .intro-lead { font-size: 20px; color: var(--color-text-secondary); max-width: 800px; line-height: 1.6; }
+
+        h2 { 
+            font-size: 28px; 
+            margin: 60px 0 24px; 
+            color: var(--color-text); 
+            border-bottom: 2px solid var(--color-border); 
+            padding-bottom: 16px; 
+        }
+        
+        h3 { font-size: 20px; margin: 32px 0 16px; color: var(--color-primary); font-weight: 700; }
+        h4 { font-size: 16px; margin: 0 0 8px; color: var(--color-text); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        p, li { color: var(--color-text-secondary); margin-bottom: 16px; font-size: 16px; }
+        ul { margin-left: 24px; }
+
+        .highlight-box {
+            background: var(--color-primary-light);
+            border-left: 4px solid var(--color-primary);
+            padding: 24px;
+            margin: 32px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* 3-Tier Diagram Styles */
+        .tier-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+        
+        .tier-col {
+            padding: 24px;
+            border-radius: 8px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        
+        .tier-col:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+        .tier-1 { border-top: 6px solid var(--color-tier-1); }
+        .tier-2 { border-top: 6px solid var(--color-tier-2); }
+        .tier-3 { border-top: 6px solid var(--color-tier-3); }
+        
+        .tier-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: white;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Orchestration Layer */
+        .orchestration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .orch-card {
+            background: var(--color-gray-light);
+            padding: 16px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .orch-card strong { display: block; color: var(--color-text); margin-bottom: 4px; }
+
+        /* Failure Mode Matrix */
+        .failure-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+        .failure-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 24px;
+        }
+        .failure-card.hallucination { border-left: 4px solid var(--color-error); }
+        .failure-card.drift { border-left: 4px solid var(--color-warning); }
+        .failure-card.api { border-left: 4px solid var(--color-text); }
+        .failure-card.trust { border-left: 4px solid var(--color-primary); }
+
+        .problem-fix {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+        .problem-fix div { flex: 1; }
+        .label { font-size: 11px; text-transform: uppercase; color: var(--color-text-secondary); font-weight: 700; display: block; margin-bottom: 4px; }
+
+        /* Metrics */
+        .metric-category { margin-bottom: 32px; }
+        .metric-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .metric-box {
+            background: var(--color-surface);
+            padding: 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+        }
+        .metric-box strong { color: var(--color-primary); display: block; font-size: 18px; }
+        .metric-box small { color: var(--color-text-secondary); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Timeline/Loop */
+        .loop-container {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 40px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .loop-step {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            position: relative;
+            background: var(--color-surface);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            z-index: 2;
+        }
+        .loop-step .step-num { 
+            display: inline-block; width: 24px; height: 24px; background: var(--color-primary); 
+            color: white; border-radius: 50%; line-height: 24px; font-size: 12px; font-weight: 700; margin-bottom: 8px; 
+        }
+        
+        /* Guardrails */
+        .guardrail-box {
+            background: #fff5f5;
+            border-left: 4px solid var(--color-error);
+            padding: 20px;
+            margin-top: 24px;
+            border-radius: 0 8px 8px 0;
+        }
+        .guardrail-box h4 { color: var(--color-error); }
+
+        /* Deep Dive Callout */
+        .deep-dive-card {
+            background: linear-gradient(135deg, #134252 0%, #218089 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 8px;
+            margin-top: 60px;
+            text-align: center;
+        }
+        .deep-dive-card h2 { color: white; border: none; margin-top: 0; }
+        .deep-dive-card p { color: rgba(255,255,255,0.9); font-size: 18px; max-width: 600px; margin: 0 auto 24px; }
+        .deep-dive-btn {
+            background: white; color: var(--color-primary);
+            padding: 12px 24px; border-radius: 6px; text-decoration: none;
+            font-weight: 700; display: inline-block; transition: transform 0.2s;
+        }
+        .deep-dive-btn:hover { transform: scale(1.05); }
+
+        footer { 
+            margin-top: 80px; 
+            padding-top: 40px; 
+            border-top: 1px solid var(--color-border); 
+            color: var(--color-text-secondary); 
+            font-size: 14px; 
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 32px; }
+            .tier-diagram, .failure-grid { grid-template-columns: 1fr; }
+            .loop-container { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="nav-back">← Back to Portfolio Hub</a>
+
+        <header>
+            <div class="header-eyebrow">Product Strategy & Architecture</div>
+            <h1>Agentic Evolution: From Recommendations to Autonomous Systems</h1>
+            <p class="intro-lead">
+                Recommendations are the first step toward autonomy. The next evolution is a system that knows when to act, when to ask, and when to defer. This document outlines the architecture for the "Self-Driving" version of Policy2Recommendations.
+            </p>
+        </header>
+
+        <section id="opportunity">
+            <h2>1. The Scaling Opportunity</h2>
+            <p>
+                Policy2Recommendations proved the value of AI-assisted decision-making (82% compliance). However, the architecture creates a scaling bottleneck: <strong>every booking still requires human approval (Human-in-the-Loop)</strong>.
+            </p>
+            <p>
+                As booking volume scales, Travel Managers become overwhelmed approving low-risk, obviously compliant trips. The goal of the Agentic Evolution is to transform the system from a passive assistant to an autonomous agent.
+            </p>
+            <div class="highlight-box">
+                <strong>Target Outcome:</strong> 80% of bookings handled "hands-free" (autonomously), allowing humans to focus solely on high-value exceptions (Human-on-the-Loop).
+            </div>
+        </section>
+
+        <section id="architecture">
+            <h2>2. The Solution: 3-Tier Orchestration</h2>
+            <p>An agent doesn't just decide; it decides <em>how to decide</em>. We utilize a confidence-based routing system to manage risk.</p>
+            
+            <div class="tier-diagram">
+                <div class="tier-col tier-1">
+                    <span class="tier-badge" style="background: var(--color-tier-1);">TIER 1: AUTO-APPROVE</span>
+                    <div style="font-weight: 700; margin-bottom: 8px; font-size: 18px;">"High Confidence"</div>
+                    <p style="font-size: 14px; font-weight: 600;">Confidence &gt; 85%</p>
+                    <hr style="margin: 16px 0; border: 0; border-top: 1px solid #eee;">
+                    <p style="font-size: 14px;">
+                        System books immediately. No human in the loop.
+                        <br><br>
+                        <em>Use Case: Under budget, preferred vendor, frequent traveler.</em>
+                    </p>
+                </div>
+
+                <div class="tier-col tier-2">
+                    <span class="tier-badge" style="background: var(--color-tier-2);">TIER 2: GATED APPROVAL</span>
+                    <div style="font-weight: 700; margin-bottom: 8px; font-size: 18px;">"Medium Confidence"</div>
+                    <p style="font-size: 14px; font-weight: 600;">Confidence 70% - 85%</p>
+                    <hr style="margin: 16px 0; border: 0; border-top: 1px solid #eee;">
+                    <p style="font-size: 14px;">
+                        System drafts booking, sends Slack/Teams notification. Human clicks "Approve".
+                        <br><br>
+                        <em>Use Case: Slightly over budget but high loyalty status.</em>
+                    </p>
+                </div>
+
+                <div class="tier-col tier-3">
+                    <span class="tier-badge" style="background: var(--color-tier-3);">TIER 3: ESCALATION</span>
+                    <div style="font-weight: 700; margin-bottom: 8px; font-size: 18px;">"Low Confidence"</div>
+                    <p style="font-size: 14px; font-weight: 600;">Confidence &lt; 70%</p>
+                    <hr style="margin: 16px 0; border: 0; border-top: 1px solid #eee;">
+                    <p style="font-size: 14px;">
+                        Full manual review required. System provides data context only.
+                        <br><br>
+                        <em>Use Case: Complex multi-city international itinerary.</em>
+                    </p>
+                </div>
+            </div>
+
+            <div class="orchestration-grid">
+                <div class="orch-card"><strong>Policy Engine</strong>Evaluates constraints (budget, brand, geography)</div>
+                <div class="orch-card"><strong>Data Layer</strong>Fetches real-time pricing & availability</div>
+                <div class="orch-card"><strong>Confidence Model</strong>Estimates decision quality based on signals</div>
+                <div class="orch-card"><strong>Decision Gate</strong>Routes to Tier 1/2/3 based on risk</div>
+            </div>
+        </section>
+
+        <section id="failure-modes">
+            <h2>3. Designing for Failure (Self-Healing)</h2>
+            <p>
+                Mature AI systems are designed around the assumption that they will fail. We architected specific "circuit breakers" for the most common LLM failure modes.
+            </p>
+            
+            <div class="failure-grid">
+                <div class="failure-card hallucination">
+                    <h4>1. Hallucination</h4>
+                    <p><strong>Risk:</strong> LLM invents policy constraints (e.g., "Must be Economy") not in source text.</p>
+                    <div class="problem-fix">
+                        <div><span class="label">Detection</span>Confidence model flags non-grounded extractions.</div>
+                        <div><span class="label">Recovery</span>Escalate to Tier 3; feedback loop retrains model.</div>
+                    </div>
+                </div>
+
+                <div class="failure-card drift">
+                    <h4>2. Model Drift</h4>
+                    <p><strong>Risk:</strong> Model trained on Q1 data fails as travel patterns shift in Q3.</p>
+                    <div class="problem-fix">
+                        <div><span class="label">Detection</span>Override rate > 10% triggers alert.</div>
+                        <div><span class="label">Recovery</span>Auto-retrain on recent data; A/B test new model.</div>
+                    </div>
+                </div>
+
+                <div class="failure-card api">
+                    <h4>3. API Failure</h4>
+                    <p><strong>Risk:</strong> Hotel availability service goes down; data becomes stale.</p>
+                    <div class="problem-fix">
+                        <div><span class="label">Detection</span>Circuit breaker pattern monitors latency/errors.</div>
+                        <div><span class="label">Recovery</span>Graceful degradation to cached data; auto-escalate.</div>
+                    </div>
+                </div>
+
+                <div class="failure-card trust">
+                    <h4>4. User Distrust</h4>
+                    <p><strong>Risk:</strong> Travelers don't believe the agent and override manually.</p>
+                    <div class="problem-fix">
+                        <div><span class="label">Detection</span>Trust Score surveys & high traveler override rate.</div>
+                        <div><span class="label">Recovery</span>Transparency layer: "I decided this because..."</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="evaluation">
+            <h2>4. Evaluation Framework</h2>
+            <p>We measure success across three dimensions to ensure technical accuracy translates to business value.</p>
+            
+            <div class="metric-category">
+                <h4>Model Health (Technical)</h4>
+                <div class="metric-row">
+                    <div class="metric-box">
+                        <small>Hallucination Rate</small>
+                        <strong>&lt; 2%</strong>
+                    </div>
+                    <div class="metric-box">
+                        <small>Confidence Calibration</small>
+                        <strong>&gt; 85%</strong>
+                    </div>
+                    <div class="metric-box">
+                        <small>P99 Latency</small>
+                        <strong>&lt; 3s</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-category">
+                <h4>System Performance (Operational)</h4>
+                <div class="metric-row">
+                    <div class="metric-box">
+                        <small>Auto-Decision Rate</small>
+                        <strong>80%</strong>
+                    </div>
+                    <div class="metric-box">
+                        <small>Escalation Accuracy</small>
+                        <strong>&gt; 85%</strong>
+                    </div>
+                    <div class="metric-box">
+                        <small>Override Rate</small>
+                        <strong>&lt; 10%</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-category">
+                <h4>Business Impact (Value)</h4>
+                <div class="metric-row">
+                    <div class="metric-box">
+                        <small>Policy Compliance</small>
+                        <strong>&gt; 95%</strong>
+                    </div>
+                    <div class="metric-box">
+                        <small>Savings per Trip</small>
+                        <strong>&gt; $240</strong>
+                    </div>
+                    <div class="metric-box">
+                        <small>Time Saved/Mgr</small>
+                        <strong>10 hrs/wk</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="safety">
+            <h2>5. Continuous Improvement & Safety</h2>
+            <p>The system learns from every interaction. A 7-week cycle ensures it gets smarter, not stale.</p>
+
+            <div class="loop-container">
+                <div class="loop-step"><span class="step-num">1</span><br>Monitor Metrics</div>
+                <div class="loop-step"><span class="step-num">2</span><br>Detect Anomaly</div>
+                <div class="loop-step"><span class="step-num">3</span><br>Collect Feedback</div>
+                <div class="loop-step"><span class="step-num">4</span><br>RLHF Fine-Tune</div>
+                <div class="loop-step"><span class="step-num">5</span><br>A/B Test</div>
+                <div class="loop-step"><span class="step-num">6</span><br>Full Rollout</div>
+            </div>
+
+            <div class="guardrail-box">
+                <h4>🛡️ Risk Mitigation: The "Kill Switch"</h4>
+                <p>
+                    If the <strong>Override Rate exceeds 5%</strong> in a single hour, or <strong>API availability drops below 95%</strong>, the system automatically triggers a "Safe Mode."
+                </p>
+                <p style="margin-bottom: 0;">
+                    <strong>Action:</strong> All Tier 1 (Auto) decisions are immediately paused. All bookings route to Tier 3 (Human Review) until a manual reset is performed. This ensures no bad bookings happen during system instability.
+                </p>
+            </div>
+        </section>
+
+        <div class="deep-dive-card">
+            <h2>Go Deeper: Technical Specification</h2>
+            <p>
+                View the complete failure mode analysis (FMA), detailed metric definitions, and safety protocols in the technical white paper.
+            </p>
+            <a href="agentic-whitepaper.html" class="deep-dive-btn">Read the White Paper →</a>
+        </div>
+
+        <footer>
+            <p>Policy2Recommendations | Strategic Architecture Module | January 2026</p>
+            <p><a href="index.html" style="color: var(--color-primary);">Return to Portfolio Hub</a></p>
+        </footer>
+    </div>
+</body>
+</html>
